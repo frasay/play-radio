@@ -2,14 +2,13 @@
 <html lang="en-NZ">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BKC6H4JQSM"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-BKC6H4JQSM');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BKC6H4JQSM"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-BKC6H4JQSM');
+  </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -78,8 +77,7 @@
   .how{margin:0;font-size:16px;line-height:1.5;color:var(--body-ink)}
   .need{margin-top:14px;font-size:13.5px;line-height:1.4;color:var(--body-ink)}
   .need b{display:block;font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:3px}
-  .chips{margin-top:auto;padding-top:14px;display:flex;flex-wrap:wrap;row-gap:6px;border-top:1px solid #d9d5ca;font-size:12px;color:var(--mute)}
-  .chips{column-gap:16px}
+  .chips{margin-top:auto;padding-top:14px;display:flex;flex-wrap:wrap;row-gap:6px;column-gap:16px;border-top:1px solid #d9d5ca;font-size:12px;color:var(--mute)}
   .chips:empty{display:none}
   .chips span{line-height:1.2}
   .chips .close{color:var(--orange);font-weight:600}
@@ -163,8 +161,11 @@
     box-shadow:2px 3px 6px rgba(160,66,18,.4),inset 5px 7px 12px rgba(120,40,0,.45),inset -2px -2px 6px rgba(255,170,120,.35)}
   .play:focus-visible{outline-offset:7px;border-radius:50%}
 
+  /* Bottom row: space slider + players dial */
+  .bottom{display:grid;grid-template-columns:1fr 128px;gap:14px;align-items:end}
+
   /* Space slider */
-  .space{position:relative;padding:0 46px}
+  .space{position:relative;padding:0 46px;min-width:0}
   .space .head{display:flex;justify-content:space-between;align-items:baseline;margin:0 -46px 4px}
   .space .head .val{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--orange)}
   .slider{position:relative;height:94px;touch-action:none;cursor:pointer}
@@ -183,10 +184,36 @@
   .slab{position:absolute;top:66px;transform:translateX(-50%);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
     color:var(--mute);padding:6px 6px;white-space:nowrap;transition:color .15s}
   .slab.on{color:var(--ink)}
+  .slab.flip{animation:labin .32s ease}
+  @keyframes labin{from{opacity:0}to{opacity:1}}
+
+  /* Players dial (small) */
+  .players{display:flex;flex-direction:column;align-items:center}
+  .players .lab{margin:0;text-align:center}
+  .pdial{position:relative;width:128px;height:128px;touch-action:none}
+  .ptick{position:absolute;left:50%;top:50%;width:2px;height:4px;margin-left:-1px;background:#a8a398;transform-origin:50% 0;
+    transform:rotate(var(--a)) translateY(-45px);border-radius:1px}
+  .ptick.m{height:7px;background:#6f6b60}
+  .plab{position:absolute;left:50%;top:50%;transform-origin:0 0;font-size:14px;font-weight:600;color:var(--mute);
+    transform:rotate(var(--a)) translateY(-55px) rotate(calc(var(--a) * -1)) translate(-50%,-50%);
+    padding:6px;cursor:pointer;transition:color .15s}
+  .plab.on{color:var(--orange)}
+  .pknob{position:absolute;left:50%;top:50%;width:68px;height:68px;margin:-34px 0 0 -34px;border-radius:50%;cursor:grab;touch-action:none;
+    background:linear-gradient(145deg,#f6f4ee,#dcd9d0);
+    box-shadow:7px 9px 16px rgba(100,90,70,.42),-5px -5px 11px rgba(255,255,255,.95),inset 1px 1px 1px #fff;
+    transition:transform .17s var(--spring),box-shadow .12s}
+  .pknob.grab{cursor:grabbing;box-shadow:4px 6px 11px rgba(100,90,70,.4),-4px -4px 9px rgba(255,255,255,.95),inset 1px 1px 1px #fff}
+  .pknob::before{content:"";position:absolute;inset:4px;border-radius:50%;
+    background:repeating-conic-gradient(rgba(110,102,86,.20) 0 1.4deg,transparent 1.4deg 6deg);
+    -webkit-mask:radial-gradient(circle,transparent 62%,#000 63%);mask:radial-gradient(circle,transparent 62%,#000 63%)}
+  .pknob::after{content:"";position:absolute;left:50%;top:5px;width:4px;height:10px;margin-left:-2px;border-radius:2px;background:var(--orange)}
+  .pcap{position:absolute;left:50%;top:50%;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;pointer-events:none;
+    display:grid;place-items:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;
+    background:#e6e3db;box-shadow:inset 3px 4px 7px rgba(120,111,92,.36),inset -3px -3px 6px rgba(255,255,255,.95)}
 
   @media (prefers-reduced-motion:reduce){
-    .knob,.sthumb,.seg .thumb,.needle{transition-duration:.01s}
-    .d-inner.rise{animation:none}
+    .knob,.pknob,.sthumb,.seg .thumb,.needle{transition-duration:.01s}
+    .d-inner.rise,.slab.flip{animation:none}
   }
 </style>
 </head>
@@ -200,7 +227,7 @@
         <div class="d-inner" id="dInner">
           <div class="d-top"><span class="num" id="dNum">Standing by</span><span class="tag" id="dTag" hidden>Tākaro Māori</span></div>
           <h1 class="title" id="dTitle">Tune in a play idea</h1>
-          <p class="how" id="dHow">Set your time, your space and where you are, then press play. You will get one idea to try right now.</p>
+          <p class="how" id="dHow">Set your time, your space, where you are and how many are playing, then press play. You will get one idea to try right now.</p>
           <div class="need" id="dNeed" hidden><b>You will need</b><span id="dNeedText"></span></div>
           <div class="chips" id="dChips" aria-hidden="true"></div>
         </div>
@@ -253,12 +280,22 @@
         </div>
       </div>
 
-      <div class="space">
-        <div class="head"><span class="lab" style="margin:0">Space</span><span class="val" id="sVal">Room</span></div>
-        <div class="slider" id="slider">
-          <div class="rail" id="rail"></div>
-          <div class="sthumb" id="sthumb" role="slider" tabindex="0" aria-label="How much space you have"
-               aria-valuemin="0" aria-valuemax="3" aria-valuenow="1" aria-valuetext="Room"></div>
+      <div class="bottom">
+        <div class="space">
+          <div class="head"><span class="lab" style="margin:0">Space</span><span class="val" id="sVal">Room</span></div>
+          <div class="slider" id="slider">
+            <div class="rail" id="rail"></div>
+            <div class="sthumb" id="sthumb" role="slider" tabindex="0" aria-label="How much space you have"
+                 aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Room"></div>
+          </div>
+        </div>
+        <div class="players">
+          <div class="lab">Players</div>
+          <div class="pdial" id="pdial">
+            <div class="pknob" id="pknob" role="slider" tabindex="0" aria-label="How many players"
+                 aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="2 players"></div>
+            <div class="pcap" aria-hidden="true" id="pVal">2</div>
+          </div>
         </div>
       </div>
     </section>
@@ -272,104 +309,144 @@
 
   /* ---------------------------------------------------------------
      DATA
-     t: [shortest, longest] minutes that suit the idea
-     s: smallest space needed (0 hallway, 1 room, 2 backyard, 3 park)
-     w: 'in', 'out' or 'both'
-     g: 0 no gear, 1 household items, 2 some gear needed
-     e: energy, 0 calm to 1 lively
-     m: true for Tākaro Māori ideas
+     t:  [shortest, longest] minutes that suit the idea
+     si: smallest indoor space needed (0 hallway, 1 room, 2 big room or hall), null if not an indoor idea
+     so: smallest outdoor space needed (0 deck or driveway, 1 backyard, 2 park), null if not an outdoor idea
+     g:  0 no gear, 1 household items, 2 some gear needed
+     e:  energy, 0 calm to 1 lively
+     p:  [fewest, most] players, where 3 means 3 or more
+     m:  true for Tākaro Māori ideas
   --------------------------------------------------------------- */
   const TIMES  = [5, 10, 15, 30, 45, 60];
-  const SPACES = ['Hallway', 'Room', 'Backyard', 'Park'];
-  const SPACE_CHIP = ['Fits a hallway', 'Needs a room', 'Needs a backyard', 'Needs a park'];
+  const PLAYERS = [1, 2, 3];
+  const PLAYER_LABELS = ['1', '2', '3+'];
+  const SPACES = { in:['Hallway', 'Room', 'Big room'], out:['Deck', 'Backyard', 'Park'] };
+  const SPACE_CHIP = {
+    in:  ['Fits a hallway', 'Needs a room', 'Needs a big room or hall'],
+    out: ['Fits a deck or driveway', 'Needs a backyard', 'Needs a park']
+  };
 
   const IDEAS = [
-    {n:'Floor is Lava', d:'Pick a start and a finish across the room. The floor is lava, so you can only touch couches, chairs and cushions. Take turns choosing the route.', t:[5,30], s:1, w:'in', g:0, e:.75, k:'Furniture and cushions'},
-    {n:'Freeze Dance', d:'Play a song and dance wildly. When the music stops, freeze like a statue. Anyone who wobbles does a silly pose.', t:[5,15], s:1, w:'both', g:0, e:.85, k:'A phone or speaker for music'},
-    {n:'Animal Walk Relay', d:'Pick an animal, like a crab, bear or frog, and race across the space moving like it. Change the animal every lap.', t:[5,15], s:1, w:'both', g:0, e:.85, k:'Just yourselves'},
-    {n:'Shadow Tag', d:'Tag someone by stepping on their shadow, not on them. Best played when the sun is low and shadows are long.', t:[10,30], s:2, w:'out', g:0, e:.9, k:'A sunny day'},
-    {n:'Simon Says', d:'One person is Simon and gives the commands. Only follow the ones that start with "Simon says". Be quick, and be sneaky.', t:[5,15], s:0, w:'both', g:0, e:.4, k:'Just yourselves'},
-    {n:'What\u2019s the Time, Mr Wolf?', d:'Everyone creeps towards Mr Wolf and asks the time. Wolf answers with an hour, and everyone takes that many steps. When Wolf shouts "dinner time!", chase everyone back to the start.', t:[10,30], s:2, w:'out', g:0, e:.8, k:'Just yourselves'},
-    {n:'Bullrush', d:'One tagger stands in the middle. Everyone else runs from one side to the other without being tagged. Anyone caught joins the tagger. Last runner wins.', t:[15,60], s:3, w:'out', g:0, e:1, k:'Just yourselves'},
-    {n:'Stuck in the Mud', d:'One person is "it". Anyone they tag freezes with their legs apart. Friends free them by crawling through. Can "it" freeze everyone?', t:[10,30], s:2, w:'out', g:0, e:.9, k:'Just yourselves'},
-    {n:'Hide and Seek', d:'Count to thirty, then go looking. Agree on the boundaries first. The first person found is the next seeker.', t:[15,60], s:1, w:'both', g:0, e:.55, k:'Just yourselves'},
-    {n:'Charades', d:'Act out a movie, an animal or a job without speaking. Everyone else guesses. Use a timer if it gets competitive.', t:[10,60], s:0, w:'both', g:0, e:.3, k:'Just yourselves, or a phone timer'},
-    {n:'Story Chain', d:'One person starts a story with a single sentence. The next person adds one more. Keep going until it gets wonderfully silly.', t:[5,45], s:0, w:'both', g:0, e:.1, k:'Just yourselves'},
-    {n:'Cloud Shapes', d:'Lie back and look up. Find shapes in the clouds and describe them to each other. See who can spot the most unusual one.', t:[5,15], s:0, w:'out', g:0, e:.05, k:'A patch of grass or a doorstep'},
-    {n:'Sound Map', d:'Sit still for two minutes and listen. List every sound you can hear, near and far. Compare lists and find the quietest sound.', t:[5,15], s:0, w:'out', g:0, e:.08, k:'Just yourselves'},
-    {n:'Ground Art', d:'Gather leaves, petals and sticks and arrange them into a picture on the ground. Take a photo, then leave everything where you found it.', t:[10,45], s:0, w:'out', g:0, e:.15, k:'Whatever you find outside, and a phone for a photo'},
-    {n:'Nature Scavenger Hunt', d:'Make a list: something smooth, something spiky, something yellow, something that makes a sound. Take photos instead of picking things.', t:[15,60], s:2, w:'out', g:0, e:.5, k:'A phone for photos, or pen and paper'},
-    {n:'Cushion Obstacle Course', d:'Build a course with cushions, chairs and blankets. Time each other, then change one thing and try to beat your best.', t:[10,30], s:1, w:'in', g:1, e:.8, k:'Cushions, chairs and blankets'},
-    {n:'Balloon Keepy-Uppy', d:'Keep the balloon off the ground using any body part. Add a new rule each round, like no hands or left hand only.', t:[5,15], s:1, w:'in', g:1, e:.7, k:'A balloon'},
-    {n:'Hallway Bowling', d:'Line up plastic cups at the end of the hallway and roll a soft ball to knock them down. Keep score, or play to ten.', t:[10,30], s:0, w:'in', g:1, e:.4, k:'Plastic cups, and a soft ball or rolled-up socks'},
-    {n:'Sock Toss', d:'Roll up some socks and toss them into a basket. Take a step back each time you score.', t:[5,15], s:0, w:'in', g:1, e:.35, k:'Rolled-up socks and a basket'},
-    {n:'Box Fort', d:'Build a fort from boxes, blankets and chairs. Give it a name, a flag and a secret password.', t:[30,60], s:1, w:'in', g:1, e:.35, k:'Boxes, blankets and pegs or tape'},
-    {n:'Chalk Hopscotch', d:'Draw a hopscotch grid, or invent your own with funny moves like spins and star jumps. Toss a stone to start each turn.', t:[10,30], s:1, w:'out', g:1, e:.6, k:'Chalk and a small stone'},
-    {n:'Elastics', d:'Two people stretch a long elastic loop around their ankles while a third jumps patterns on, in and out. Raise it to the knees, then the hips, as you improve.', t:[10,45], s:1, w:'out', g:2, e:.75, k:'A long loop of elastic, about 3 to 4 metres'},
-    {n:'Frisbee Golf', d:'Pick targets such as trees, cones or bins. Count the throws it takes to hit each one. Fewest throws wins.', t:[30,60], s:3, w:'out', g:2, e:.6, k:'A frisbee and some targets'},
-    {n:'Backyard Cricket', d:'Set up a wicket and take turns batting, bowling and fielding. Agree on the house rules first, like "over the fence is out".', t:[30,60], s:2, w:'out', g:2, e:.8, k:'A bat, a ball and something for stumps'},
-    {n:'Kick to Kick', d:'Stand in two groups across the field and kick the ball back and forth. Take a step back after every clean catch.', t:[15,45], s:3, w:'out', g:2, e:.8, k:'A ball'},
-    {n:'Egg and Spoon Race', d:'Balance an egg, a potato or a ball on a spoon and race to the finish. Drop it and you go back to the start.', t:[10,30], s:2, w:'out', g:1, e:.6, k:'Spoons, and something to balance on them'},
-    {n:'Skipping Challenges', d:'Count how many skips you can do without a miss. Then try new tricks, like skipping backwards or two people in one rope.', t:[5,30], s:1, w:'out', g:2, e:.9, k:'A skipping rope'},
-    {n:'Water Balloon Toss', d:'Toss a water balloon to a partner and each take a step back after every catch. The last pair with an unbroken balloon wins.', t:[10,30], s:2, w:'out', g:1, e:.7, k:'Water balloons or wet sponges'},
-    {n:'Capture the Flag', d:'Two teams each guard a flag in their half. Sneak across, grab the other flag and get it home without being tagged.', t:[30,60], s:3, w:'out', g:1, e:1, k:'Two scarves or flags, and a way to mark the halves'},
-    {n:'Four Square', d:'Chalk a big square split into four, with one player in each. Bounce the ball into someone else\u2019s square. Miss a return and you go to the end of the line.', t:[15,45], s:1, w:'out', g:2, e:.6, k:'A bouncy ball and chalk'},
-    {n:'Wheelbarrow Race', d:'In pairs, one person walks on their hands while their partner holds their legs. Race to the line, then swap.', t:[10,30], s:2, w:'out', g:0, e:.85, k:'Just yourselves, and a soft patch of grass'},
-    {n:'Marble Run', d:'Build a track from cardboard tubes and tape on a wall or table. Test it with a marble and keep improving it.', t:[30,60], s:0, w:'in', g:1, e:.2, k:'Cardboard tubes, tape and a marble or small ball'},
-    {n:'Paper Plane Contest', d:'Fold your best paper plane and see whose flies the farthest. Then change one fold and try again.', t:[10,30], s:1, w:'in', g:1, e:.25, k:'Paper'},
-    {n:'Treasure Hunt', d:'Hide a small treasure and write three clues that lead to it. Swap roles and make the clues trickier.', t:[15,45], s:1, w:'both', g:1, e:.5, k:'Paper, a pen and a small treasure'},
-    {n:'Cup Tower Challenge', d:'Race to build the tallest tower you can using only cups. Then try again with one hand each.', t:[10,30], s:0, w:'in', g:1, e:.25, k:'Paper or plastic cups'},
-    {n:'Twenty Questions', d:'Think of something. Everyone else gets twenty yes or no questions to work out what it is.', t:[5,30], s:0, w:'both', g:0, e:.1, k:'Just yourselves'},
-    {n:'Yoga Animals', d:'Take turns striking an animal pose, like a cat, cobra or flamingo. Everyone guesses the animal, then copies the pose.', t:[5,15], s:0, w:'both', g:0, e:.15, k:'Just yourselves'},
-    {n:'Rock Paper Scissors Tournament', d:'Play a knockout tournament. Anyone who is beaten cheers for the person who beat them, until there is one champion.', t:[5,15], s:0, w:'both', g:0, e:.25, k:'Just yourselves'},
-    {n:'Make a Radio Show', d:'Record a short radio show on a phone. Include a news bulletin, a weather report, an ad break and a favourite song. Play it back and see who laughs first.', t:[30,60], s:0, w:'both', g:0, e:.3, k:'A phone to record on'},
-    {n:'Family Quiz Show', d:'Take turns being the quiz host. Each person writes five questions on any topic, from movies to footy to family trivia. Keep score and crown a champion.', t:[30,60], s:0, w:'both', g:0, e:.2, k:'Just yourselves, or pen and paper for scoring'},
-    {n:'Make a Dance', d:'Pick a song and make up a short routine together, then perform it for someone. Add a big finish.', t:[15,45], s:1, w:'in', g:0, e:.7, k:'A phone or speaker for music'},
-    {n:'Whai (String Figures)', d:'Whai are string figures. Loop string around your hands to make a shape, then pass the pattern to a partner to make the next one.', t:[10,45], s:0, w:'both', g:1, e:.1, k:'A loop of string or wool', m:true},
-    {n:'M\u016b T\u014drere', d:'A traditional two-player M\u0101ori strategy game. Draw an eight-point star, give each player four stones, and take turns sliding into the empty space. If you cannot move, you lose. Look up the full rules together.', t:[10,30], s:0, w:'in', g:1, e:.15, k:'Eight stones or buttons in two colours, and a drawn star', m:true},
-    {n:'Ki-o-rahi', d:'A traditional M\u0101ori ball game played by two teams around a central target. Look up the rules together, then give it a go with a small ball.', t:[30,60], s:3, w:'out', g:2, e:1, k:'A small ball and some cones for markers', m:true},
-    {n:'T\u012b R\u0101kau', d:'A stick game for pairs or a circle. Toss and catch short sticks in time with a steady beat, then speed up.', t:[10,30], s:0, w:'both', g:1, e:.45, k:'Short sticks or rolled-up newspaper', m:true},
-    {n:'Poi', d:'Swing a poi in circles beside your body in time with a song. Start with one hand, then try both.', t:[10,30], s:1, w:'both', g:1, e:.5, k:'A pair of poi, or a soft ball in a sock on a string', m:true},
-    {n:"Indoor Camp Out", d:"Build a camp from blankets and chairs, then settle in with torches and take turns telling stories. Add a picnic on the floor if you like.", t:[45,60], s:1, w:"in", g:1, e:0.2, k:"Blankets, chairs, torches and snacks"},
-    {n:"Stop-Motion Movie", d:"Pick a small toy or object. Move it a tiny bit, take a photo, and repeat. Play the photos back quickly to bring it to life.", t:[45,60], s:1, w:"in", g:1, e:0.2, k:"A phone or tablet, and a small toy or object"},
-    {n:"Board Game Tournament", d:"Choose a few quick family favourites and run a knockout tournament. Winners move on, and everyone cheers for the final.", t:[45,60], s:1, w:"in", g:1, e:0.3, k:"Board games or card games"},
-    {n:"Puppet Show", d:"Make sock puppets, write a short play together and perform it for an audience. Give each puppet a name and a voice.", t:[30,60], s:1, w:"in", g:1, e:0.3, k:"Old socks, paper, pens and tape"},
-    {n:"Indoor Mini Golf", d:"Build a mini golf course from cups, books and cardboard tubes. Play all the holes and keep score, then redesign the hardest one.", t:[30,60], s:1, w:"in", g:1, e:0.4, k:"Cups, books, cardboard tubes and a small ball"},
-    {n:"Ninja Warrior Course", d:"Mark out a course with tape and cushions. Crawl under chairs, balance along a line and hop between cushions. Time each run, then add a new obstacle. Clear the floor of anything sharp first.", t:[30,60], s:1, w:"in", g:1, e:0.85, k:"Tape, cushions and chairs"},
-    {n:"Mystery Detective", d:"Hide a few clues around the house that lead to a pretend mystery, like the missing biscuit. Solve the case together.", t:[30,60], s:1, w:"in", g:1, e:0.35, k:"Paper, a pen and a few hiding spots"},
-    {n:"Building Block Challenge", d:"Pick a theme, like a bridge, a tall tower or a zoo, and build it against the clock. Then take turns showing what you made.", t:[30,60], s:0, w:"in", g:1, e:0.2, k:"Building blocks, Lego or small boxes"},
-    {n:"Dress-Up Fashion Show", d:"Make outfits from whatever is in the cupboard and put on a show. Add a runway, a commentator and some music.", t:[30,60], s:1, w:"in", g:1, e:0.5, k:"Old clothes, scarves, hats and music"},
-    {n:"I Spy", d:"One person spies something and says its first letter or its colour. Everyone else guesses. The person who guesses right goes next.", t:[5,15], s:0, w:"both", g:0, e:0.1, k:"Just yourselves"},
-    {n:"Mirror, Mirror", d:"Face a partner. One person moves slowly and the other copies like a reflection. Swap, then try to make it impossible to tell who is leading.", t:[5,15], s:0, w:"both", g:0, e:0.2, k:"Just yourselves"},
-    {n:"Two Truths and a Lie", d:"Say three things about yourself, two true and one made up. Everyone else guesses which is the fib.", t:[5,15], s:0, w:"both", g:0, e:0.1, k:"Just yourselves"},
-    {n:"Category Game", d:"Pick a category, like animals or foods. Go around the group naming one each. If you hesitate or repeat one, you are out.", t:[5,15], s:0, w:"both", g:0, e:0.15, k:"Just yourselves"},
-    {n:"Hand Clapping Games", d:"Face a partner and clap out a rhythm or rhyme. Start slowly, then speed up. Make up your own pattern and teach it to someone else.", t:[5,15], s:0, w:"both", g:0, e:0.4, k:"Just yourselves"},
-    {n:"Zip Zap Boing", d:"Stand in a circle. Pass \"zip\" with a point to the next person and \"zap\" across the circle. \"Boing\" sends it back. Keep it fast and silly.", t:[5,15], s:1, w:"both", g:0, e:0.6, k:"Just yourselves"},
-    {n:"Sleeping Lions", d:"Everyone lies on the floor like a sleeping lion, as still as possible. The last lion to move or giggle wins the round.", t:[5,15], s:1, w:"both", g:0, e:0.05, k:"Just yourselves"},
-    {n:"Human Knot", d:"Stand in a circle and hold hands with two different people across from you. Now untangle yourselves without letting go.", t:[10,30], s:1, w:"both", g:0, e:0.5, k:"Just yourselves, and a group of at least four"},
-    {n:"Puddle Jumping", d:"After the rain, find the biggest puddle and jump in. See who can make the biggest splash, and who can jump the farthest.", t:[5,15], s:2, w:"out", g:0, e:0.75, k:"Gumboots or old shoes, and a puddle"},
-    {n:"Cartwheel Challenge", d:"Try cartwheels, rolls and handstands on soft grass. Take turns, copy each other's moves and invent a new one.", t:[5,15], s:2, w:"out", g:0, e:0.8, k:"A soft patch of grass, with plenty of room"},
-    {n:"Jandal Toss", d:"Set a target, like a hula hoop, and see who can throw a jandal closest. Always throw towards the target, never at people.", t:[5,15], s:2, w:"out", g:1, e:0.5, k:"A jandal each, and a target"},
-    {n:"Sprint Relay", d:"Split into teams and race in legs, passing a baton at each handover. Swap the order and race again.", t:[10,30], s:3, w:"out", g:0, e:1, k:"A baton, or a rolled-up sock"},
-    {n:"Tug of War", d:"Two teams hold opposite ends of a long rope. The first team to pull the middle across the line wins. Best on soft grass.", t:[10,30], s:2, w:"out", g:1, e:0.85, k:"A long, strong rope"},
-    {n:"Bucket Relay", d:"Teams carry water in cups from one bucket to another. The first team to fill its bucket to a marked line wins.", t:[10,30], s:2, w:"out", g:1, e:0.7, k:"Two buckets, cups and a hose or water source"},
-    {n:"Stargazing", d:"Wait for a clear night, lie back and look for stars, planets and satellites. Pick a favourite and make up a story about it.", t:[15,45], s:2, w:"out", g:0, e:0.02, k:"A clear night, and a blanket to lie on"},
-    {n:"Boules", d:"Toss a small target ball, then take turns throwing your balls as close to it as possible. Closest ball wins the round.", t:[15,45], s:2, w:"out", g:2, e:0.3, k:"Boules, or small balls and a target ball"},
-    {n:"Dodgeball", d:"Teams throw soft balls at players on the other side. If you are hit, you are out. Catch a ball to bring someone back.", t:[15,45], s:3, w:"out", g:2, e:1, k:"Soft balls, such as foam balls"},
-    {n:"Kite Flying", d:"Take a kite to an open space on a breezy day and see how high it will go. Take turns holding the string.", t:[30,60], s:3, w:"out", g:2, e:0.45, k:"A kite and a windy day"},
-    {n:"Bike or Scooter Skills Course", d:"Set out cones and time each run. Try weaving, slow riding and stopping on a line. Helmets on for everyone.", t:[30,60], s:2, w:"out", g:2, e:0.8, k:"Bikes or scooters, helmets and cones"},
-    {n:"Stick Hut Building", d:"Lean fallen sticks and branches against a tree or fence to build a shelter. Only use what is on the ground, and leave the area as you found it.", t:[30,60], s:3, w:"out", g:0, e:0.5, k:"Fallen sticks and branches"},
-    {n:"Sandcastle Engineers", d:"Build the tallest or most elaborate sandcastle you can. Add moats, tunnels and flags, then wait to see how the tide treats it.", t:[30,60], s:3, w:"out", g:1, e:0.45, k:"A bucket, a spade and a beach"},
-    {n:"Rock Pool Explorers", d:"At low tide, look for crabs, shells and sea life in the rock pools. Look gently, put everything back, and check the tide times first. Children need to be supervised.", t:[30,60], s:3, w:"out", g:0, e:0.35, k:"Sturdy shoes, and a low tide"}
+    {"n": "Floor is Lava", "d": "Pick a start and a finish across the room. The floor is lava, so you can only touch couches, chairs and cushions. Find the safest route, then try a harder one.", "t": [5, 30], "si": 1, "so": null, "g": 0, "e": 0.75, "k": "Furniture and cushions", "p": [1, 3]},
+    {"n": "Freeze Dance", "d": "Play a song and dance wildly. When the music stops, freeze like a statue. Anyone who wobbles does a silly pose.", "t": [5, 15], "si": 1, "so": 0, "g": 0, "e": 0.85, "k": "A phone or speaker for music", "p": [2, 3]},
+    {"n": "Animal Walk Relay", "d": "Pick an animal, like a crab, bear or frog, and race across the space moving like it. Change the animal every lap.", "t": [5, 15], "si": 1, "so": 1, "g": 0, "e": 0.85, "k": "Just yourselves", "p": [1, 3]},
+    {"n": "Shadow Tag", "d": "Tag someone by stepping on their shadow, not on them. Best played when the sun is low and shadows are long.", "t": [10, 30], "si": null, "so": 1, "g": 0, "e": 0.9, "k": "A sunny day", "p": [2, 3]},
+    {"n": "Simon Says", "d": "One person is Simon and gives the commands. Only follow the ones that start with \"Simon says\". Be quick, and be sneaky.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.4, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "What’s the Time, Mr Wolf?", "d": "Everyone creeps towards Mr Wolf and asks the time. Wolf answers with an hour, and everyone takes that many steps. When Wolf shouts \"dinner time!\", chase everyone back to the start.", "t": [10, 30], "si": null, "so": 1, "g": 0, "e": 0.8, "k": "Just yourselves", "p": [3, 3]},
+    {"n": "Bullrush", "d": "One tagger stands in the middle. Everyone else runs from one side to the other without being tagged. Anyone caught joins the tagger. Last runner wins.", "t": [15, 60], "si": 2, "so": 2, "g": 0, "e": 1, "k": "Just yourselves", "p": [3, 3]},
+    {"n": "Stuck in the Mud", "d": "One person is \"it\". Anyone they tag freezes with their legs apart. Friends free them by crawling through. Can \"it\" freeze everyone?", "t": [10, 30], "si": 2, "so": 1, "g": 0, "e": 0.9, "k": "Just yourselves", "p": [3, 3]},
+    {"n": "Hide and Seek", "d": "Count to thirty, then go looking. Agree on the boundaries first. The first person found is the next seeker.", "t": [15, 60], "si": 1, "so": 1, "g": 0, "e": 0.55, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Charades", "d": "Act out a movie, an animal or a job without speaking. Everyone else guesses. Use a timer if it gets competitive.", "t": [10, 60], "si": 0, "so": 0, "g": 0, "e": 0.3, "k": "Just yourselves, or a phone timer", "p": [2, 3]},
+    {"n": "Story Chain", "d": "One person starts a story with a single sentence. The next person adds one more. Keep going until it gets wonderfully silly.", "t": [5, 45], "si": 0, "so": 0, "g": 0, "e": 0.1, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Cloud Shapes", "d": "Lie back and look up. Find shapes in the clouds and describe them out loud, or to each other. Find the most unusual one.", "t": [5, 15], "si": null, "so": 0, "g": 0, "e": 0.05, "k": "A patch of grass or a doorstep", "p": [1, 3]},
+    {"n": "Sound Map", "d": "Sit still for two minutes and listen. List every sound you can hear, near and far. Find the quietest sound, and compare lists if you have company.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.08, "k": "Just yourselves", "p": [1, 3]},
+    {"n": "Ground Art", "d": "Gather leaves, petals and sticks and arrange them into a picture on the ground. Take a photo, then leave everything where you found it.", "t": [10, 45], "si": null, "so": 0, "g": 0, "e": 0.15, "k": "Whatever you find outside, and a phone for a photo", "p": [1, 3]},
+    {"n": "Nature Scavenger Hunt", "d": "Make a list: something smooth, something spiky, something yellow, something that makes a sound. Take photos instead of picking things.", "t": [15, 60], "si": null, "so": 1, "g": 0, "e": 0.5, "k": "A phone for photos, or pen and paper", "p": [1, 3]},
+    {"n": "Cushion Obstacle Course", "d": "Build a course with cushions, chairs and blankets. Time yourself or each other, then change one thing and try to beat your best.", "t": [10, 30], "si": 1, "so": null, "g": 1, "e": 0.8, "k": "Cushions, chairs and blankets", "p": [1, 3]},
+    {"n": "Balloon Keepy-Uppy", "d": "Keep the balloon off the ground using any body part. Add a new rule each round, like no hands or left hand only.", "t": [5, 15], "si": 1, "so": null, "g": 1, "e": 0.7, "k": "A balloon", "p": [1, 3]},
+    {"n": "Hallway Bowling", "d": "Line up plastic cups at the end of the hallway and roll a soft ball to knock them down. Keep score, or play to ten.", "t": [10, 30], "si": 0, "so": null, "g": 1, "e": 0.4, "k": "Plastic cups, and a soft ball or rolled-up socks", "p": [1, 3]},
+    {"n": "Sock Toss", "d": "Roll up some socks and toss them into a basket. Take a step back each time you score.", "t": [5, 15], "si": 0, "so": null, "g": 1, "e": 0.35, "k": "Rolled-up socks and a basket", "p": [1, 3]},
+    {"n": "Box Fort", "d": "Build a fort from boxes, blankets and chairs. Give it a name, a flag and a secret password.", "t": [30, 60], "si": 1, "so": null, "g": 1, "e": 0.35, "k": "Boxes, blankets and pegs or tape", "p": [1, 3]},
+    {"n": "Chalk Hopscotch", "d": "Draw a hopscotch grid, or invent your own with funny moves like spins and star jumps. Toss a stone to start each turn.", "t": [10, 30], "si": null, "so": 0, "g": 1, "e": 0.6, "k": "Chalk and a small stone", "p": [1, 3]},
+    {"n": "Elastics", "d": "Two people stretch a long elastic loop around their ankles while a third jumps patterns on, in and out. Raise it to the knees, then the hips, as you improve.", "t": [10, 45], "si": null, "so": 0, "g": 2, "e": 0.75, "k": "A long loop of elastic, about 3 to 4 metres", "p": [3, 3]},
+    {"n": "Frisbee Golf", "d": "Pick targets such as trees, cones or bins. Count the throws it takes to hit each one, then try to beat your best. Fewest throws wins.", "t": [30, 60], "si": null, "so": 2, "g": 2, "e": 0.6, "k": "A frisbee and some targets", "p": [1, 3]},
+    {"n": "Backyard Cricket", "d": "Set up a wicket and take turns batting, bowling and fielding. Agree on the house rules first, like \"over the fence is out\".", "t": [30, 60], "si": null, "so": 1, "g": 2, "e": 0.8, "k": "A bat, a ball and something for stumps", "p": [2, 3]},
+    {"n": "Kick to Kick", "d": "Stand in two groups across the field and kick the ball back and forth. Take a step back after every clean catch.", "t": [15, 45], "si": null, "so": 2, "g": 2, "e": 0.8, "k": "A ball", "p": [2, 3]},
+    {"n": "Egg and Spoon Race", "d": "Balance an egg, a potato or a ball on a spoon and race to the finish. Drop it and you go back to the start.", "t": [10, 30], "si": null, "so": 1, "g": 1, "e": 0.6, "k": "Spoons, and something to balance on them", "p": [1, 3]},
+    {"n": "Skipping Challenges", "d": "Count how many skips you can do without a miss. Then try new tricks, like skipping backwards or two people in one rope.", "t": [5, 30], "si": null, "so": 0, "g": 2, "e": 0.9, "k": "A skipping rope", "p": [1, 3]},
+    {"n": "Water Balloon Toss", "d": "Toss a water balloon to a partner and each take a step back after every catch. The last pair with an unbroken balloon wins.", "t": [10, 30], "si": null, "so": 1, "g": 1, "e": 0.7, "k": "Water balloons or wet sponges", "p": [2, 3]},
+    {"n": "Capture the Flag", "d": "Two teams each guard a flag in their half. Sneak across, grab the other flag and get it home without being tagged.", "t": [30, 60], "si": 2, "so": 2, "g": 1, "e": 1, "k": "Two scarves or flags, and a way to mark the halves", "p": [3, 3]},
+    {"n": "Four Square", "d": "Chalk a big square split into four, with one player in each. Bounce the ball into someone else’s square. Miss a return and you go to the end of the line.", "t": [15, 45], "si": null, "so": 0, "g": 2, "e": 0.6, "k": "A bouncy ball and chalk", "p": [3, 3]},
+    {"n": "Wheelbarrow Race", "d": "In pairs, one person walks on their hands while their partner holds their legs. Race to the line, then swap.", "t": [10, 30], "si": null, "so": 1, "g": 0, "e": 0.85, "k": "Just yourselves, and a soft patch of grass", "p": [2, 3]},
+    {"n": "Marble Run", "d": "Build a track from cardboard tubes and tape on a wall or table. Test it with a marble and keep improving it.", "t": [30, 60], "si": 0, "so": null, "g": 1, "e": 0.2, "k": "Cardboard tubes, tape and a marble or small ball", "p": [1, 3]},
+    {"n": "Paper Plane Contest", "d": "Fold your best paper plane and see how far it flies. Then change one fold and try again. Compare with others if you have company.", "t": [10, 30], "si": 1, "so": null, "g": 1, "e": 0.25, "k": "Paper", "p": [1, 3]},
+    {"n": "Treasure Hunt", "d": "Hide a small treasure and write three clues that lead to it. Swap roles and make the clues trickier.", "t": [15, 45], "si": 1, "so": 1, "g": 1, "e": 0.5, "k": "Paper, a pen and a small treasure", "p": [2, 3]},
+    {"n": "Cup Tower Challenge", "d": "Race to build the tallest tower you can using only cups. Then try again with one hand each.", "t": [10, 30], "si": 0, "so": null, "g": 1, "e": 0.25, "k": "Paper or plastic cups", "p": [1, 3]},
+    {"n": "Twenty Questions", "d": "Think of something. Everyone else gets twenty yes or no questions to work out what it is.", "t": [5, 30], "si": 0, "so": 0, "g": 0, "e": 0.1, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Yoga Animals", "d": "Strike an animal pose, like a cat, cobra or flamingo, and hold it for a few slow breaths. With others, take turns and guess each other’s animal, then copy the pose.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.15, "k": "Just yourselves", "p": [1, 3]},
+    {"n": "Rock Paper Scissors Tournament", "d": "Play a knockout tournament. Anyone who is beaten cheers for the person who beat them, until there is one champion.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.25, "k": "Just yourselves", "p": [3, 3]},
+    {"n": "Make a Radio Show", "d": "Record a short radio show on a phone. Include a news bulletin, a weather report, an ad break and a favourite song. Play it back and see who laughs first.", "t": [30, 60], "si": 0, "so": 0, "g": 0, "e": 0.3, "k": "A phone to record on", "p": [1, 3]},
+    {"n": "Family Quiz Show", "d": "Take turns being the quiz host. Each person writes five questions on any topic, from movies to footy to family trivia. Keep score and crown a champion.", "t": [30, 60], "si": 0, "so": 0, "g": 0, "e": 0.2, "k": "Just yourselves, or pen and paper for scoring", "p": [2, 3]},
+    {"n": "Make a Dance", "d": "Pick a song and make up a short routine, then perform it for someone. Add a big finish.", "t": [15, 45], "si": 1, "so": null, "g": 0, "e": 0.7, "k": "A phone or speaker for music", "p": [1, 3]},
+    {"n": "Whai (String Figures)", "d": "Whai are string figures. Loop string around your hands to make a shape, then pass the pattern to a partner to make the next one.", "t": [10, 45], "si": 0, "so": 0, "g": 1, "e": 0.1, "k": "A loop of string or wool", "p": [2, 3], "m": true},
+    {"n": "Mū Tōrere", "d": "A traditional two-player Māori strategy game. Draw an eight-point star, give each player four stones, and take turns sliding into the empty space. If you cannot move, you lose. Look up the full rules together.", "t": [10, 30], "si": 0, "so": null, "g": 1, "e": 0.15, "k": "Eight stones or buttons in two colours, and a drawn star", "p": [2, 2], "m": true},
+    {"n": "Ki-o-rahi", "d": "A traditional Māori ball game played by two teams around a central target. Look up the rules together, then give it a go with a small ball.", "t": [30, 60], "si": null, "so": 2, "g": 2, "e": 1, "k": "A small ball and some cones for markers", "p": [3, 3], "m": true},
+    {"n": "Tī Rākau", "d": "A stick game for pairs or a circle. Toss and catch short sticks in time with a steady beat, then speed up.", "t": [10, 30], "si": 0, "so": 0, "g": 1, "e": 0.45, "k": "Short sticks or rolled-up newspaper", "p": [2, 3], "m": true},
+    {"n": "Poi", "d": "Swing a poi in circles beside your body in time with a song. Start with one hand, then try both.", "t": [10, 30], "si": 1, "so": 0, "g": 1, "e": 0.5, "k": "A pair of poi, or a soft ball in a sock on a string", "p": [1, 3], "m": true},
+    {"n": "Indoor Camp Out", "d": "Build a camp from blankets and chairs, then settle in with torches and take turns telling stories. Add a picnic on the floor if you like.", "t": [45, 60], "si": 1, "so": null, "g": 1, "e": 0.2, "k": "Blankets, chairs, torches and snacks", "p": [1, 3]},
+    {"n": "Stop-Motion Movie", "d": "Pick a small toy or object. Move it a tiny bit, take a photo, and repeat. Play the photos back quickly to bring it to life.", "t": [45, 60], "si": 1, "so": null, "g": 1, "e": 0.2, "k": "A phone or tablet, and a small toy or object", "p": [1, 3]},
+    {"n": "Board Game Tournament", "d": "Choose a few quick family favourites and run a knockout tournament. Winners move on, and everyone cheers for the final.", "t": [45, 60], "si": 1, "so": null, "g": 1, "e": 0.3, "k": "Board games or card games", "p": [2, 3]},
+    {"n": "Puppet Show", "d": "Make sock puppets, write a short play together and perform it for an audience. Give each puppet a name and a voice.", "t": [30, 60], "si": 1, "so": null, "g": 1, "e": 0.3, "k": "Old socks, paper, pens and tape", "p": [1, 3]},
+    {"n": "Indoor Mini Golf", "d": "Build a mini golf course from cups, books and cardboard tubes. Play all the holes and keep score, then redesign the hardest one.", "t": [30, 60], "si": 1, "so": null, "g": 1, "e": 0.4, "k": "Cups, books, cardboard tubes and a small ball", "p": [1, 3]},
+    {"n": "Ninja Warrior Course", "d": "Mark out a course with tape and cushions. Crawl under chairs, balance along a line and hop between cushions. Time each run, then add a new obstacle. Clear the floor of anything sharp first.", "t": [30, 60], "si": 1, "so": null, "g": 1, "e": 0.85, "k": "Tape, cushions and chairs", "p": [1, 3]},
+    {"n": "Mystery Detective", "d": "Hide a few clues around the house that lead to a pretend mystery, like the missing biscuit. Solve the case together.", "t": [30, 60], "si": 1, "so": null, "g": 1, "e": 0.35, "k": "Paper, a pen and a few hiding spots", "p": [2, 3]},
+    {"n": "Building Block Challenge", "d": "Pick a theme, like a bridge, a tall tower or a zoo, and build it against the clock. Then take turns showing what you made.", "t": [30, 60], "si": 0, "so": null, "g": 1, "e": 0.2, "k": "Building blocks, Lego or small boxes", "p": [1, 3]},
+    {"n": "Dress-Up Fashion Show", "d": "Make outfits from whatever is in the cupboard and put on a show. Add a runway, a commentator and some music.", "t": [30, 60], "si": 1, "so": null, "g": 1, "e": 0.5, "k": "Old clothes, scarves, hats and music", "p": [1, 3]},
+    {"n": "I Spy", "d": "One person spies something and says its first letter or its colour. Everyone else guesses. The person who guesses right goes next.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.1, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Mirror, Mirror", "d": "Face a partner. One person moves slowly and the other copies like a reflection. Swap, then try to make it impossible to tell who is leading.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.2, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Two Truths and a Lie", "d": "Say three things about yourself, two true and one made up. Everyone else guesses which is the fib.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.1, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Category Game", "d": "Pick a category, like animals or foods. Go around the group naming one each. If you hesitate or repeat one, you are out.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.15, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Hand Clapping Games", "d": "Face a partner and clap out a rhythm or rhyme. Start slowly, then speed up. Make up your own pattern and teach it to someone else.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.4, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Zip Zap Boing", "d": "Stand in a circle. Pass \"zip\" with a point to the next person and \"zap\" across the circle. \"Boing\" sends it back. Keep it fast and silly.", "t": [5, 15], "si": 1, "so": 0, "g": 0, "e": 0.6, "k": "Just yourselves", "p": [3, 3]},
+    {"n": "Sleeping Lions", "d": "Everyone lies on the floor like a sleeping lion, as still as possible. The last lion to move or giggle wins the round.", "t": [5, 15], "si": 1, "so": 0, "g": 0, "e": 0.05, "k": "Just yourselves", "p": [2, 3]},
+    {"n": "Human Knot", "d": "Stand in a circle and hold hands with two different people across from you. Now untangle yourselves without letting go.", "t": [10, 30], "si": 1, "so": 0, "g": 0, "e": 0.5, "k": "Just yourselves, and a group of at least four", "p": [3, 3]},
+    {"n": "Puddle Jumping", "d": "After the rain, find the biggest puddle and jump in. See how big a splash you can make, and how far you can jump.", "t": [5, 15], "si": null, "so": 1, "g": 0, "e": 0.75, "k": "Gumboots or old shoes, and a puddle", "p": [1, 3]},
+    {"n": "Cartwheel Challenge", "d": "Try cartwheels, rolls and handstands on soft grass. Copy each other’s moves, or invent a new one of your own.", "t": [5, 15], "si": null, "so": 1, "g": 0, "e": 0.8, "k": "A soft patch of grass, with plenty of room", "p": [1, 3]},
+    {"n": "Jandal Toss", "d": "Set a target, like a hula hoop, and see how close you can throw a jandal. Always throw towards the target, never at people.", "t": [5, 15], "si": null, "so": 1, "g": 1, "e": 0.5, "k": "A jandal each, and a target", "p": [1, 3]},
+    {"n": "Sprint Relay", "d": "Split into teams and race in legs, passing a baton at each handover. Swap the order and race again.", "t": [10, 30], "si": 2, "so": 2, "g": 0, "e": 1, "k": "A baton, or a rolled-up sock", "p": [3, 3]},
+    {"n": "Tug of War", "d": "Two teams hold opposite ends of a long rope. The first team to pull the middle across the line wins. Best on soft grass.", "t": [10, 30], "si": null, "so": 1, "g": 1, "e": 0.85, "k": "A long, strong rope", "p": [2, 3]},
+    {"n": "Bucket Relay", "d": "Teams carry water in cups from one bucket to another. The first team to fill its bucket to a marked line wins.", "t": [10, 30], "si": null, "so": 1, "g": 1, "e": 0.7, "k": "Two buckets, cups and a hose or water source", "p": [3, 3]},
+    {"n": "Stargazing", "d": "Wait for a clear night, lie back and look for stars, planets and satellites. Pick a favourite and make up a story about it.", "t": [15, 45], "si": null, "so": 0, "g": 0, "e": 0.02, "k": "A clear night, and a blanket to lie on", "p": [1, 3]},
+    {"n": "Boules", "d": "Toss a small target ball, then take turns throwing your balls as close to it as possible. Closest ball wins the round.", "t": [15, 45], "si": null, "so": 1, "g": 2, "e": 0.3, "k": "Boules, or small balls and a target ball", "p": [2, 3]},
+    {"n": "Dodgeball", "d": "Teams throw soft balls at players on the other side. If you are hit, you are out. Catch a ball to bring someone back.", "t": [15, 45], "si": 2, "so": 2, "g": 2, "e": 1, "k": "Soft balls, such as foam balls", "p": [3, 3]},
+    {"n": "Kite Flying", "d": "Take a kite to an open space on a breezy day and see how high it will go. Take turns holding the string.", "t": [30, 60], "si": null, "so": 2, "g": 2, "e": 0.45, "k": "A kite and a windy day", "p": [1, 3]},
+    {"n": "Bike or Scooter Skills Course", "d": "Set out cones and time each run. Try weaving, slow riding and stopping on a line. Helmets on for everyone.", "t": [30, 60], "si": null, "so": 1, "g": 2, "e": 0.8, "k": "Bikes or scooters, helmets and cones", "p": [1, 3]},
+    {"n": "Stick Hut Building", "d": "Lean fallen sticks and branches against a tree or fence to build a shelter. Only use what is on the ground, and leave the area as you found it.", "t": [30, 60], "si": null, "so": 2, "g": 0, "e": 0.5, "k": "Fallen sticks and branches", "p": [1, 3]},
+    {"n": "Sandcastle Engineers", "d": "Build the tallest or most elaborate sandcastle you can. Add moats, tunnels and flags, then wait to see how the tide treats it.", "t": [30, 60], "si": null, "so": 2, "g": 1, "e": 0.45, "k": "A bucket, a spade and a beach", "p": [1, 3]},
+    {"n": "Rock Pool Explorers", "d": "At low tide, look for crabs, shells and sea life in the rock pools. Look gently, put everything back, and check the tide times first. Children need to be supervised.", "t": [30, 60], "si": null, "so": 2, "g": 0, "e": 0.35, "k": "Sturdy shoes, and a low tide", "p": [1, 3]},
+    {"n": "Invent a Game", "d": "Make up a brand new game with a name, simple rules and a way to win. Play it, then change one rule to make it better. Teach it to someone else if you can.", "t": [30, 60], "si": 0, "so": 0, "g": 0, "e": 0.4, "k": "Just yourselves, and anything you can find", "p": [1, 3]},
+    {"n": "Pretend Adventure", "d": "Pick a story, like a jungle trek, a space mission or a pirate hunt, and act it out. Use whatever is nearby as props and give everything a new name.", "t": [15, 60], "si": 0, "so": 0, "g": 0, "e": 0.5, "k": "Just yourselves, and your imagination", "p": [1, 3]},
+    {"n": "Balance Challenge", "d": "Stand on one leg and see how long you can hold it. Then try closing your eyes, or balancing something on your head. Beat your own record.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.15, "k": "Just yourselves", "p": [1, 3]},
+    {"n": "Tongue Twister Challenge", "d": "Say a tongue twister as fast as you can without a slip, like \"red lorry, yellow lorry\". Then make up your own and see who can crack it.", "t": [5, 15], "si": 0, "so": 0, "g": 0, "e": 0.1, "k": "Just yourselves", "p": [1, 3]},
+    {"n": "Ball Against the Wall", "d": "Throw a ball against a solid wall and catch it. Add a clap, a spin or a bounce each time. Count how many you can do in a row.", "t": [5, 30], "si": null, "so": 0, "g": 2, "e": 0.55, "k": "A ball and a solid wall", "p": [1, 2]},
+    {"n": "Keepy-Uppy", "d": "Keep a ball in the air using your feet, knees and head. Count your touches and try to beat your best.", "t": [5, 30], "si": null, "so": 0, "g": 2, "e": 0.7, "k": "A ball", "p": [1, 3]},
+    {"n": "Draw a Comic", "d": "Draw a short comic strip with a hero, a problem and a funny ending. Add speech bubbles, then share it.", "t": [15, 45], "si": 0, "so": 0, "g": 1, "e": 0.1, "k": "Paper and pens or pencils", "p": [1, 3]},
+    {"n": "Paper Boats and Frogs", "d": "Fold a paper boat or a jumping frog. Race your boats across a tray of water, or see whose frog jumps farthest.", "t": [10, 30], "si": 0, "so": 0, "g": 1, "e": 0.2, "k": "Paper, and a tray of water for the boats", "p": [1, 3]},
+    {"n": "Shadow Puppets", "d": "Use a torch or lamp to make animal shapes on a wall with your hands. Tell a short story using your shadow characters.", "t": [10, 30], "si": 0, "so": null, "g": 1, "e": 0.15, "k": "A torch or lamp, and a plain wall", "p": [1, 3]},
+    {"n": "Paper Football", "d": "Flick a folded paper triangle across a table and through your partner’s finger goalposts. Take turns and play to ten.", "t": [5, 15], "si": 0, "so": 0, "g": 1, "e": 0.25, "k": "Paper and a table", "p": [2, 2]},
+    {"n": "Noughts and Crosses Showdown", "d": "Play a best-of-five series. Then change the rules, like a bigger grid or four in a row.", "t": [5, 15], "si": 0, "so": 0, "g": 1, "e": 0.1, "k": "Paper and a pen", "p": [2, 2]},
+    {"n": "Driveway Chalk Art", "d": "Draw a giant picture on the driveway or path. Try a road for toy cars, a maze, or a giant self-portrait.", "t": [15, 45], "si": null, "so": 0, "g": 1, "e": 0.2, "k": "Chalk", "p": [1, 3]},
+    {"n": "Bubble Chase", "d": "Blow bubbles and pop as many as you can before they land. Try using only elbows, then only knees.", "t": [5, 15], "si": null, "so": 0, "g": 1, "e": 0.55, "k": "Bubble mixture and a wand", "p": [1, 3]},
+    {"n": "Catch with a Twist", "d": "Toss a ball back and forth. Add a rule each round, like one hand only, a clap or a spin. Take a step back after every catch.", "t": [5, 30], "si": 0, "so": 0, "g": 1, "e": 0.5, "k": "A soft ball or rolled-up socks", "p": [2, 3]}
   ];
 
   /* ---------------------------------------------------------------
      STATE
   --------------------------------------------------------------- */
-  const state = { t:2, s:1, w:'in', g:0 };
+  const state = { t:2, s:1, w:'in', g:0, p:1 };
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = id => document.getElementById(id);
   const radio = $('radio');
+
+  /* ---------------------------------------------------------------
+     GOOGLE ANALYTICS EVENTS (the Google tag is in the head)
+     Events are only sent for finished choices, never for every
+     step while a dial or slider is being dragged.
+  --------------------------------------------------------------- */
+  let playCount = 0;
+  function track(name, params){
+    try { if (typeof window.gtag === 'function') window.gtag('event', name, params || {}); }
+    catch (err) { /* analytics must never stop the radio working */ }
+  }
+  function snap(st){
+    return {
+      play_time: TIMES[st.t],
+      play_space: SPACES[st.w][st.s].toLowerCase().replace(' ', '_'),
+      play_location: st.w === 'in' ? 'indoors' : 'outdoors',
+      gear: st.g === 0 ? 'no_gear' : 'with_gear',
+      players: st.p === 2 ? '3_plus' : String(PLAYERS[st.p])
+    };
+  }
 
   /* ---------------------------------------------------------------
      SOUND (Web Audio, no files needed)
@@ -441,7 +518,8 @@
   --------------------------------------------------------------- */
   const dial = $('dial'), knob = $('knob'), dVal = $('dVal');
   const angleFor = i => -150 + i * 60;
-  const tickEls = [], labEls = [];
+  const labEls = [];
+  let dialDrag = false, dialStart = 0;
 
   (function buildDial(){
     for (let a = -150; a <= 150; a += 12){
@@ -470,10 +548,12 @@
     knob.setAttribute('aria-valuenow', i);
     knob.setAttribute('aria-valuetext', TIMES[i] + ' minutes');
     labEls.forEach((l, k) => l.classList.toggle('on', k === i));
-    if (changed && sound) Snd.detent(i);
+    if (changed && sound){
+      Snd.detent(i);
+      if (!dialDrag) track('time_selected', { play_time: TIMES[i] });
+    }
   }
 
-  let dialDrag = false;
   function dialFromPointer(e){
     const r = dial.getBoundingClientRect();
     const dx = e.clientX - (r.left + r.width / 2);
@@ -482,9 +562,13 @@
     if (a > 150 || a < -150) a = angleFor(state.t) >= 0 ? 150 : -150;   // dead zone at the bottom
     setTime(Math.round((a + 150) / 60), true);
   }
-  knob.addEventListener('pointerdown', e => { dialDrag = true; knob.classList.add('grab'); knob.setPointerCapture(e.pointerId); dialFromPointer(e); e.preventDefault(); });
+  knob.addEventListener('pointerdown', e => { dialDrag = true; dialStart = state.t; knob.classList.add('grab'); knob.setPointerCapture(e.pointerId); dialFromPointer(e); e.preventDefault(); });
   knob.addEventListener('pointermove', e => { if (dialDrag) dialFromPointer(e); });
-  const endDial = () => { dialDrag = false; knob.classList.remove('grab'); };
+  const endDial = () => {
+    if (!dialDrag) return;
+    dialDrag = false; knob.classList.remove('grab');
+    if (state.t !== dialStart) track('time_selected', { play_time: TIMES[state.t] });
+  };
   knob.addEventListener('pointerup', endDial); knob.addEventListener('pointercancel', endDial);
   knob.addEventListener('keydown', e => {
     const k = e.key;
@@ -495,44 +579,62 @@
   });
 
   /* ---------------------------------------------------------------
-     SLIDER (space)
+     SLIDER (space). The names change with Indoors or Outdoors,
+     so the choices always make sense for where you are.
   --------------------------------------------------------------- */
   const slider = $('slider'), rail = $('rail'), sthumb = $('sthumb'), sVal = $('sVal');
-  const slabs = [];
+  const N_SPACE = 3, slabs = [];
+  let sDrag = false, sStart = 0;
+
   (function buildSlider(){
-    SPACES.forEach((name, i) => {
-      const left = (i / (SPACES.length - 1) * 100) + '%';
+    for (let i = 0; i < N_SPACE; i++){
+      const left = (i / (N_SPACE - 1) * 100) + '%';
       const st = document.createElement('i'); st.className = 'stop'; st.style.left = left; rail.appendChild(st);
-      const b = document.createElement('button'); b.className = 'slab'; b.textContent = name; b.tabIndex = -1;
+      const b = document.createElement('button'); b.className = 'slab'; b.tabIndex = -1;
       b.style.left = left; b.addEventListener('click', () => setSpace(i, true));
       slider.appendChild(b); slabs.push(b);
-    });
+    }
   })();
+
+  function refreshSpaceLabels(animate){
+    const names = SPACES[state.w];
+    slabs.forEach((b, i) => {
+      b.textContent = names[i];
+      if (animate && !reduce){ b.classList.remove('flip'); void b.offsetWidth; b.classList.add('flip'); }
+    });
+    sVal.textContent = names[state.s];
+    sthumb.setAttribute('aria-valuetext', names[state.s]);
+  }
   function setSpace(i, sound){
-    i = Math.max(0, Math.min(SPACES.length - 1, i));
+    i = Math.max(0, Math.min(N_SPACE - 1, i));
     const changed = i !== state.s;
     state.s = i;
-    sthumb.style.left = (i / (SPACES.length - 1) * 100) + '%';
-    sVal.textContent = SPACES[i];
+    sthumb.style.left = (i / (N_SPACE - 1) * 100) + '%';
+    const name = SPACES[state.w][i];
+    sVal.textContent = name;
     sthumb.setAttribute('aria-valuenow', i);
-    sthumb.setAttribute('aria-valuetext', SPACES[i]);
+    sthumb.setAttribute('aria-valuetext', name);
     slabs.forEach((l, k) => l.classList.toggle('on', k === i));
-    if (changed && sound) Snd.slide(i);
+    if (changed && sound){
+      Snd.slide(i);
+      if (!sDrag) track('space_selected', { play_space: snap(state).play_space });
+    }
   }
-  let sDrag = false;
   function sliderFromPointer(e){
     const r = rail.getBoundingClientRect();
     const f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    setSpace(Math.round(f * (SPACES.length - 1)), true);
+    setSpace(Math.round(f * (N_SPACE - 1)), true);
   }
-  // rail left edge is relative to .slider; thumb is positioned against .slider, so align them
-  sthumb.style.position = 'absolute';
   slider.addEventListener('pointerdown', e => {
     if (e.target.classList.contains('slab')) return;
-    sDrag = true; sthumb.classList.add('grab'); slider.setPointerCapture(e.pointerId); sliderFromPointer(e); e.preventDefault();
+    sDrag = true; sStart = state.s; sthumb.classList.add('grab'); slider.setPointerCapture(e.pointerId); sliderFromPointer(e); e.preventDefault();
   });
   slider.addEventListener('pointermove', e => { if (sDrag) sliderFromPointer(e); });
-  const endS = () => { sDrag = false; sthumb.classList.remove('grab'); };
+  const endS = () => {
+    if (!sDrag) return;
+    sDrag = false; sthumb.classList.remove('grab');
+    if (state.s !== sStart) track('space_selected', { play_space: snap(state).play_space });
+  };
   slider.addEventListener('pointerup', endS); slider.addEventListener('pointercancel', endS);
   sthumb.addEventListener('keydown', e => {
     const k = e.key;
@@ -541,16 +643,79 @@
   });
 
   /* ---------------------------------------------------------------
+     SMALL DIAL (players): 1, 2 or 3+
+  --------------------------------------------------------------- */
+  const pdial = $('pdial'), pknob = $('pknob'), pVal = $('pVal');
+  const PANG = [-52, 0, 52], plabEls = [];
+  let pDrag = false, pStart = 1;
+  const playersText = i => i === 2 ? '3 or more players' : (PLAYERS[i] === 1 ? '1 player' : PLAYERS[i] + ' players');
+
+  (function buildPDial(){
+    for (let a = -52; a <= 52; a += 13){
+      const t = document.createElement('i');
+      t.className = 'ptick' + ((a + 52) % 52 === 0 ? ' m' : '');
+      t.style.setProperty('--a', a + 'deg');
+      pdial.insertBefore(t, pknob);
+    }
+    PLAYER_LABELS.forEach((txt, i) => {
+      const b = document.createElement('button');
+      b.className = 'plab'; b.textContent = txt; b.tabIndex = -1;
+      b.setAttribute('aria-label', playersText(i));
+      b.style.setProperty('--a', PANG[i] + 'deg');
+      b.addEventListener('click', () => setPlayers(i, true));
+      pdial.insertBefore(b, pknob); plabEls.push(b);
+    });
+  })();
+
+  function setPlayers(i, sound){
+    i = Math.max(0, Math.min(PLAYERS.length - 1, i));
+    const changed = i !== state.p;
+    state.p = i;
+    pknob.style.transform = `rotate(${PANG[i]}deg)`;
+    pVal.textContent = PLAYER_LABELS[i];
+    pknob.setAttribute('aria-valuenow', i);
+    pknob.setAttribute('aria-valuetext', playersText(i));
+    plabEls.forEach((l, k) => l.classList.toggle('on', k === i));
+    if (changed && sound){
+      Snd.detent(i + 1);
+      if (!pDrag) track('players_selected', { players: snap(state).players });
+    }
+  }
+  function pdialFromPointer(e){
+    const r = pdial.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    const a = Math.atan2(dx, -dy) * 180 / Math.PI;
+    if (a > 115 || a < -115) return;                        // dead zone at the bottom
+    setPlayers(a < -26 ? 0 : a > 26 ? 2 : 1, true);
+  }
+  pknob.addEventListener('pointerdown', e => { pDrag = true; pStart = state.p; pknob.classList.add('grab'); pknob.setPointerCapture(e.pointerId); pdialFromPointer(e); e.preventDefault(); });
+  pknob.addEventListener('pointermove', e => { if (pDrag) pdialFromPointer(e); });
+  const endP = () => {
+    if (!pDrag) return;
+    pDrag = false; pknob.classList.remove('grab');
+    if (state.p !== pStart) track('players_selected', { players: snap(state).players });
+  };
+  pknob.addEventListener('pointerup', endP); pknob.addEventListener('pointercancel', endP);
+  pknob.addEventListener('keydown', e => {
+    const k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowUp')   { setPlayers(state.p + 1, true); e.preventDefault(); }
+    if (k === 'ArrowLeft'  || k === 'ArrowDown') { setPlayers(state.p - 1, true); e.preventDefault(); }
+    if (k === 'Home') { setPlayers(0, true); e.preventDefault(); }
+    if (k === 'End')  { setPlayers(PLAYERS.length - 1, true); e.preventDefault(); }
+  });
+
+  /* ---------------------------------------------------------------
      SOFT SWITCHES (where, gear)
   --------------------------------------------------------------- */
-  function seg(el, key, parse){
+  function seg(el, key, parse, onChange){
     const btns = [...el.querySelectorAll('button')];
     function set(i, sound){
       const changed = el.dataset.pos !== String(i);
       el.dataset.pos = i;
       btns.forEach((b, k) => { b.setAttribute('aria-checked', k === i); b.tabIndex = k === i ? 0 : -1; });
       state[key] = parse(btns[i].dataset.v);
-      if (changed && sound) Snd.flick();
+      if (changed){ if (onChange) onChange(sound); if (sound) Snd.flick(); }
     }
     btns.forEach((b, i) => b.addEventListener('click', () => set(i, true)));
     el.addEventListener('keydown', e => {
@@ -562,22 +727,31 @@
     });
     return set;
   }
-  seg($('segW'), 'w', v => v);
-  seg($('segG'), 'g', v => Number(v));
+  seg($('segW'), 'w', v => v, sound => {
+    refreshSpaceLabels(true);
+    if (sound) track('location_selected', { play_location: snap(state).play_location });
+  });
+  seg($('segG'), 'g', v => Number(v), sound => {
+    if (sound) track('gear_selected', { gear: snap(state).gear });
+  });
 
   /* ---------------------------------------------------------------
      PICKING AN IDEA
   --------------------------------------------------------------- */
   const recent = [];
   function pick(){
-    const T = state.t, S = state.s, W = state.w, G = state.g;
+    const T = state.t, S = state.s, W = state.w, G = state.g, P = PLAYERS[state.p];
     const scored = IDEAS.map((idea, idx) => {
       let p = 0;
       const lo = TIMES.indexOf(idea.t[0]), hi = TIMES.indexOf(idea.t[1]);
       if (T < lo) p += (lo - T) * 1.5;
       if (T > hi) p += (T - hi) * 1.5;
-      if (idea.w !== 'both' && idea.w !== W) p += 5;
-      if (idea.s > S) p += 6 * (idea.s - S); else p += .2 * (S - idea.s);
+      const need = W === 'in' ? idea.si : idea.so;
+      if (need === null) p += 5;
+      else if (need > S) p += 6 * (need - S);
+      else p += .2 * (S - need);
+      if (P < idea.p[0]) p += 7 * (idea.p[0] - P);
+      if (P > idea.p[1]) p += 7 * (P - idea.p[1]);
       if (G === 0 && idea.g > 0) p += 8;
       if (G === 1 && idea.g === 0) p += .3;
       const rank = recent.indexOf(idx);
@@ -605,9 +779,13 @@
     }
   })();
 
-  function range(idea){
-    const a = idea.t[0], b = idea.t[1];
-    return a + ' to ' + b + ' min';
+  function range(idea){ return idea.t[0] + ' to ' + idea.t[1] + ' min'; }
+  function playersChip(p){
+    const a = p[0], b = p[1];
+    if (a === b) return a === 1 ? '1 player' : a === 2 ? '2 players' : '3 or more players';
+    if (a === 1 && b === 3) return 'Solo or group';
+    if (a === 1 && b === 2) return '1 to 2 players';
+    return a + ' or more players';
   }
   function render(pickRes){
     const idea = IDEAS[pickRes.idx];
@@ -618,14 +796,18 @@
     el.how.style.fontSize = '';
     el.need.hidden = false;
     el.needText.textContent = idea.k;
-    const chips = [range(idea), idea.w === 'in' ? 'Indoors' : idea.w === 'out' ? 'Outdoors' : 'Indoors or out',
-      idea.g === 0 ? 'No gear' : idea.g === 1 ? 'Household items' : 'Some gear', SPACE_CHIP[idea.s]];
+    const here = state.w;
+    const key = (here === 'in' ? idea.si : idea.so) !== null ? here : (here === 'in' ? 'out' : 'in');
+    const level = key === 'in' ? idea.si : idea.so;
+    const where = idea.si !== null && idea.so !== null ? 'Indoors or out' : idea.si !== null ? 'Indoors' : 'Outdoors';
+    const chips = [range(idea), where,
+      idea.g === 0 ? 'No gear' : idea.g === 1 ? 'Household items' : 'Some gear',
+      SPACE_CHIP[key][level], playersChip(idea.p)];
     el.chips.innerHTML = '';
     chips.forEach(c => { const s = document.createElement('span'); s.textContent = c; el.chips.appendChild(s); });
     if (pickRes.base >= 1){
       const s = document.createElement('span'); s.className = 'close'; s.textContent = 'Closest match'; el.chips.appendChild(s);
     }
-    el.how.removeAttribute('data-fit');
     fitText();
     dInner.classList.remove('rise'); void dInner.offsetWidth; if (!reduce) dInner.classList.add('rise');
   }
@@ -642,6 +824,7 @@
   async function play(){
     if (busy) return;
     busy = true;
+    const settings = Object.assign({}, state);      // the settings the idea was picked with
     const res = pick();
     recent.unshift(res.idx); recent.length = Math.min(recent.length, 6);
     led.classList.add('on');
@@ -654,6 +837,14 @@
     await wait(60);
     render(res);
     display.classList.remove('tuning');
+    playCount += 1;
+    const idea = IDEAS[res.idx];
+    track('play_idea_generated', Object.assign({
+      idea_name: idea.n,
+      gear_type: ['no_gear', 'household_items', 'some_gear'][idea.g],
+      play_number: playCount,
+      closest_match: res.base >= 1 ? 'yes' : 'no'
+    }, snap(settings)));
     await wait(1100);
     led.classList.remove('on');
     busy = false;
@@ -677,6 +868,7 @@
     soundBtn.setAttribute('aria-pressed', String(wasOn));
     soundBtn.setAttribute('aria-label', wasOn ? 'Sound off' : 'Sound on');
     if (!wasOn) Snd.flick();
+    track('sound_toggled', { sound_state: Snd.on ? 'on' : 'off' });
   });
 
   /* ---------------------------------------------------------------
@@ -702,11 +894,13 @@
   /* Go */
   setTime(state.t, false);
   setSpace(state.s, false);
+  setPlayers(state.p, false);
+  refreshSpaceLabels(false);
   needle.style.setProperty('--x', .5);
   layout();
 
   /* Test hook (used for automated checks, harmless in normal use) */
-  window.__radio = { recent, IDEAS, TIMES, pick, state, render, fitText, setTime, setSpace };
+  window.__radio = { recent, IDEAS, TIMES, PLAYERS, SPACES, pick, state, render, fitText, setTime, setSpace, setPlayers };
 })();
 </script>
 </body>
