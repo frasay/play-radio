@@ -2,12 +2,12 @@
 <html lang="en-NZ">
 <head>
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SH9SQZGDWV"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BKC6H4JQSM"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-SH9SQZGDWV');
+    gtag('config', 'G-BKC6H4JQSM');
   </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
@@ -70,9 +70,6 @@
   .display.tuning .d-inner{opacity:0;filter:blur(4px);transition:opacity .16s,filter .16s}
   .d-top{display:flex;justify-content:space-between;align-items:center;min-height:20px}
   .num{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);font-variant-numeric:tabular-nums}
-  .tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);
-    border:1px solid var(--orange);border-radius:99px;padding:4px 10px 3px}
-  .tag[hidden]{display:none}
   .title{margin:14px 0 12px;font-size:32px;line-height:1.08;letter-spacing:-.02em;font-weight:600}
   .how{margin:0;font-size:16px;line-height:1.5;color:var(--body-ink)}
   .need{margin-top:14px;font-size:13.5px;line-height:1.4;color:var(--body-ink)}
@@ -225,7 +222,7 @@
       <div class="grille" aria-hidden="true"></div>
       <article class="display" id="display" aria-live="polite" aria-atomic="true">
         <div class="d-inner" id="dInner">
-          <div class="d-top"><span class="num" id="dNum">Standing by</span><span class="tag" id="dTag" hidden>Tākaro Māori</span></div>
+          <div class="d-top"><span class="num" id="dNum">Standing by</span></div>
           <h1 class="title" id="dTitle">Tune in a play idea</h1>
           <p class="how" id="dHow">Set your time, your space, where you are and how many are playing, then press play. You will get one idea to try right now.</p>
           <div class="need" id="dNeed" hidden><b>You will need</b><span id="dNeedText"></span></div>
@@ -315,7 +312,6 @@
      g:  0 no gear, 1 household items, 2 some gear needed
      e:  energy, 0 calm to 1 lively
      p:  [fewest, most] players, where 3 means 3 or more
-     m:  true for Tākaro Māori ideas
   --------------------------------------------------------------- */
   const TIMES  = [5, 10, 15, 30, 45, 60];
   const PLAYERS = [1, 2, 3];
@@ -368,11 +364,6 @@
     {"n": "Make a Radio Show", "d": "Record a short radio show on a phone. Include a news bulletin, a weather report, an ad break and a favourite song. Play it back and see who laughs first.", "t": [30, 60], "si": 0, "so": 0, "g": 0, "e": 0.3, "k": "A phone to record on", "p": [1, 3]},
     {"n": "Family Quiz Show", "d": "Take turns being the quiz host. Each person writes five questions on any topic, from movies to footy to family trivia. Keep score and crown a champion.", "t": [30, 60], "si": 0, "so": 0, "g": 0, "e": 0.2, "k": "Just yourselves, or pen and paper for scoring", "p": [2, 3]},
     {"n": "Make a Dance", "d": "Pick a song and make up a short routine, then perform it for someone. Add a big finish.", "t": [15, 45], "si": 1, "so": null, "g": 0, "e": 0.7, "k": "A phone or speaker for music", "p": [1, 3]},
-    {"n": "Whai (String Figures)", "d": "Whai are string figures. Loop string around your hands to make a shape, then pass the pattern to a partner to make the next one.", "t": [10, 45], "si": 0, "so": 0, "g": 1, "e": 0.1, "k": "A loop of string or wool", "p": [2, 3], "m": true},
-    {"n": "Mū Tōrere", "d": "A traditional two-player Māori strategy game. Draw an eight-point star, give each player four stones, and take turns sliding into the empty space. If you cannot move, you lose. Look up the full rules together.", "t": [10, 30], "si": 0, "so": null, "g": 1, "e": 0.15, "k": "Eight stones or buttons in two colours, and a drawn star", "p": [2, 2], "m": true},
-    {"n": "Ki-o-rahi", "d": "A traditional Māori ball game played by two teams around a central target. Look up the rules together, then give it a go with a small ball.", "t": [30, 60], "si": null, "so": 2, "g": 2, "e": 1, "k": "A small ball and some cones for markers", "p": [3, 3], "m": true},
-    {"n": "Tī Rākau", "d": "A stick game for pairs or a circle. Toss and catch short sticks in time with a steady beat, then speed up.", "t": [10, 30], "si": 0, "so": 0, "g": 1, "e": 0.45, "k": "Short sticks or rolled-up newspaper", "p": [2, 3], "m": true},
-    {"n": "Poi", "d": "Swing a poi in circles beside your body in time with a song. Start with one hand, then try both.", "t": [10, 30], "si": 1, "so": 0, "g": 1, "e": 0.5, "k": "A pair of poi, or a soft ball in a sock on a string", "p": [1, 3], "m": true},
     {"n": "Indoor Camp Out", "d": "Build a camp from blankets and chairs, then settle in with torches and take turns telling stories. Add a picnic on the floor if you like.", "t": [45, 60], "si": 1, "so": null, "g": 1, "e": 0.2, "k": "Blankets, chairs, torches and snacks", "p": [1, 3]},
     {"n": "Stop-Motion Movie", "d": "Pick a small toy or object. Move it a tiny bit, take a photo, and repeat. Play the photos back quickly to bring it to life.", "t": [45, 60], "si": 1, "so": null, "g": 1, "e": 0.2, "k": "A phone or tablet, and a small toy or object", "p": [1, 3]},
     {"n": "Board Game Tournament", "d": "Choose a few quick family favourites and run a knockout tournament. Winners move on, and everyone cheers for the final.", "t": [45, 60], "si": 1, "so": null, "g": 1, "e": 0.3, "k": "Board games or card games", "p": [2, 3]},
@@ -767,7 +758,7 @@
      DISPLAY + TUNER
   --------------------------------------------------------------- */
   const display = $('display'), dInner = $('dInner'), needle = $('needle'), led = $('led');
-  const el = { num:$('dNum'), tag:$('dTag'), title:$('dTitle'), how:$('dHow'), need:$('dNeed'), needText:$('dNeedText'), chips:$('dChips') };
+  const el = { num:$('dNum'), title:$('dTitle'), how:$('dHow'), need:$('dNeed'), needText:$('dNeedText'), chips:$('dChips') };
 
   (function buildScale(){
     const sc = $('scale');
@@ -790,7 +781,6 @@
   function render(pickRes){
     const idea = IDEAS[pickRes.idx];
     el.num.textContent = 'No. ' + String(pickRes.idx + 1).padStart(2, '0');
-    el.tag.hidden = !idea.m;
     el.title.textContent = idea.n;
     el.how.textContent = idea.d;
     el.how.style.fontSize = '';
