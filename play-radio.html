@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#e3e0d8">
+<title>Play Radio</title>
+<style>
+  :root{
+    --page:#e3e0d8;
+    --ink:#2a2926;
+    --body-ink:#46433d;
+    --mute:#7d796e;
+    --line:#b9b4a8;
+    --orange:#ee5b15;
+    --orange-dk:#d44a0a;
+    --lo:rgba(120,111,92,.34);
+    --hi:rgba(255,255,255,.92);
+    --font:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+    --spring:cubic-bezier(.3,1.5,.5,1);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--page);font-family:var(--font);color:var(--ink);
+    -webkit-text-size-adjust:100%;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+  button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+  :focus{outline:none}
+  :focus-visible{outline:2px solid var(--orange);outline-offset:4px;border-radius:12px}
+
+  .stage{position:fixed;inset:0;overflow:hidden}
+
+  /* ---------- The radio body ---------- */
+  .radio{
+    position:absolute;left:50%;top:50%;transform-origin:50% 50%;
+    border-radius:34px;display:grid;
+    background:linear-gradient(160deg,#f2f0ea,#e8e5dd);
+    box-shadow:30px 38px 64px rgba(100,90,70,.30),-14px -14px 34px rgba(255,255,255,.85),inset 1px 1px 0 rgba(255,255,255,.95);
+    visibility:hidden;
+  }
+  .radio.ready{visibility:visible}
+  .radio.land{width:1040px;height:620px;padding:32px;gap:28px;grid-template-columns:424px 1fr;
+    --m:30px;--db:112px;--tb:30px}
+  .radio.port{width:600px;height:1060px;padding:28px;gap:28px;grid-template-rows:430px 1fr;
+    --m:24px;--db:104px;--tb:24px}
+
+  /* ---------- Speaker panel (grille + display) ---------- */
+  .speaker{position:relative;border-radius:24px;overflow:hidden;background:#e8e5dd;
+    box-shadow:inset 7px 9px 18px rgba(120,111,92,.38),inset -7px -7px 16px rgba(255,255,255,.95)}
+  .grille{position:absolute;inset:0;
+    background-image:
+      radial-gradient(circle at 50% 50%,rgba(104,98,84,.62) 0 2.3px,transparent 3px),
+      radial-gradient(circle at 50% 50%,rgba(255,255,255,.95) 0 2.3px,transparent 3px);
+    background-size:15px 15px,15px 15px;background-position:0 0,1.3px 1.5px}
+
+  .display{position:absolute;left:var(--m);right:var(--m);top:var(--m);bottom:var(--db);
+    border-radius:20px;padding:24px 28px 22px;overflow:hidden;
+    background:linear-gradient(145deg,#f6f4ee,#ebe8e0);
+    box-shadow:12px 16px 30px rgba(100,90,70,.38),-6px -6px 16px rgba(255,255,255,.75),inset 1px 1px 0 #fff}
+  .d-inner{display:flex;flex-direction:column;height:100%}
+  .d-inner.rise{animation:rise .45s cubic-bezier(.2,.8,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(8px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+  .display.tuning .d-inner{opacity:0;filter:blur(4px);transition:opacity .16s,filter .16s}
+  .d-top{display:flex;justify-content:space-between;align-items:center;min-height:20px}
+  .num{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);font-variant-numeric:tabular-nums}
+  .tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);
+    border:1px solid var(--orange);border-radius:99px;padding:4px 10px 3px}
+  .tag[hidden]{display:none}
+  .title{margin:14px 0 12px;font-size:32px;line-height:1.08;letter-spacing:-.02em;font-weight:600}
+  .how{margin:0;font-size:16px;line-height:1.5;color:var(--body-ink)}
+  .need{margin-top:14px;font-size:13.5px;line-height:1.4;color:var(--body-ink)}
+  .need b{display:block;font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:3px}
+  .chips{margin-top:auto;padding-top:14px;display:flex;flex-wrap:wrap;row-gap:6px;border-top:1px solid #d9d5ca;font-size:12px;color:var(--mute)}
+  .chips{column-gap:16px}
+  .chips:empty{display:none}
+  .chips span{line-height:1.2}
+  .chips .close{color:var(--orange);font-weight:600}
+
+  /* Tuner strip */
+  .tuner{position:absolute;left:var(--m);right:var(--m);bottom:var(--tb);height:60px;border-radius:14px;padding:10px 18px 0;
+    background:#e5e2da;box-shadow:inset 4px 5px 10px rgba(120,111,92,.34),inset -4px -4px 9px rgba(255,255,255,.9)}
+  .scale{position:relative;height:26px}
+  .scale i{position:absolute;bottom:0;width:1px;height:9px;background:#a39e92;margin-left:-.5px}
+  .scale i.m{height:16px;background:#6f6b60}
+  .needle{position:absolute;top:-4px;bottom:-1px;width:2px;margin-left:-1px;border-radius:1px;background:var(--orange);
+    left:calc(var(--x,.5) * 100%);transition:left .32s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 6px rgba(238,91,21,.45)}
+  .scale-lab{display:flex;justify-content:space-between;margin-top:6px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+
+  /* ---------- Controls panel ---------- */
+  .controls{display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+  .top{display:flex;align-items:center;justify-content:space-between;height:34px}
+  .brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .brand small{font-size:10px;font-weight:500;letter-spacing:.2em;color:var(--mute);text-transform:uppercase;padding-top:2px}
+  .led{width:9px;height:9px;border-radius:50%;background:#cdc7b9;box-shadow:inset 1px 1px 2px rgba(0,0,0,.25),0 1px 0 #fff;transition:all .2s}
+  .led.on{background:var(--orange);box-shadow:0 0 9px 2px rgba(238,91,21,.6)}
+  .sound{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(145deg,#f4f2ec,#e2dfd6);box-shadow:4px 5px 10px var(--lo),-3px -3px 8px var(--hi);transition:box-shadow .12s,transform .12s}
+  .sound:active{transform:scale(.96);box-shadow:inset 3px 3px 6px var(--lo),inset -3px -3px 6px var(--hi)}
+  .sound svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .sound .off{display:none}
+  .sound[aria-pressed="true"] .on{display:none}
+  .sound[aria-pressed="true"] .off{display:block}
+
+  .row1{display:grid;grid-template-columns:300px 1fr;gap:12px;align-items:center}
+  .lab{font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+
+  /* Dial */
+  .dial{position:relative;width:300px;height:300px;touch-action:none}
+  .tick{position:absolute;left:50%;top:50%;width:2px;height:6px;margin-left:-1px;background:#a8a398;transform-origin:50% 0;
+    transform:rotate(var(--a)) translateY(-112px);border-radius:1px}
+  .tick.m{height:11px;background:#6f6b60}
+  .dlab{position:absolute;left:50%;top:50%;transform-origin:0 0;font-size:15px;font-weight:600;color:var(--mute);
+    transform:rotate(var(--a)) translateY(-134px) rotate(calc(var(--a) * -1)) translate(-50%,-50%);
+    padding:8px;cursor:pointer;transition:color .15s}
+  .dlab.on{color:var(--orange)}
+  .knob{position:absolute;left:50%;top:50%;width:188px;height:188px;margin:-94px 0 0 -94px;border-radius:50%;cursor:grab;touch-action:none;
+    background:linear-gradient(145deg,#f6f4ee,#dcd9d0);
+    box-shadow:12px 16px 28px rgba(100,90,70,.42),-8px -8px 18px rgba(255,255,255,.95),inset 1px 1px 1px #fff;
+    transition:transform .17s var(--spring),box-shadow .12s}
+  .knob.grab{cursor:grabbing;box-shadow:8px 10px 20px rgba(100,90,70,.4),-6px -6px 14px rgba(255,255,255,.95),inset 1px 1px 1px #fff}
+  .knob::before{content:"";position:absolute;inset:9px;border-radius:50%;
+    background:repeating-conic-gradient(rgba(110,102,86,.20) 0 1.4deg,transparent 1.4deg 6deg);
+    -webkit-mask:radial-gradient(circle,transparent 62%,#000 63%);mask:radial-gradient(circle,transparent 62%,#000 63%)}
+  .knob::after{content:"";position:absolute;left:50%;top:12px;width:6px;height:26px;margin-left:-3px;border-radius:3px;background:var(--orange);
+    box-shadow:0 0 0 1px rgba(255,255,255,.4)}
+  .cap{position:absolute;left:50%;top:50%;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:#e6e3db;box-shadow:inset 5px 6px 11px rgba(120,111,92,.36),inset -5px -5px 10px rgba(255,255,255,.95)}
+  .cap .val{font-size:42px;font-weight:600;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .cap .unit{font-size:10px;letter-spacing:.24em;color:var(--mute);margin-top:4px;padding-left:2px}
+
+  /* Segmented soft switches */
+  .colb{display:flex;flex-direction:column;gap:14px;align-items:stretch;padding-right:2px}
+  .seg{position:relative;display:grid;grid-template-columns:1fr 1fr;height:46px;border-radius:14px;padding:4px;
+    background:#e3e0d8;box-shadow:inset 4px 5px 10px rgba(120,111,92,.36),inset -4px -4px 9px rgba(255,255,255,.95)}
+  .seg .thumb{position:absolute;left:4px;top:4px;bottom:4px;width:calc(50% - 4px);border-radius:10px;
+    background:linear-gradient(145deg,#f7f5ef,#e6e3da);box-shadow:4px 5px 9px rgba(100,90,70,.36),-2px -2px 6px rgba(255,255,255,.9);
+    transition:transform .2s var(--spring)}
+  .seg .thumb::after{content:"";position:absolute;left:50%;top:5px;width:14px;height:3px;margin-left:-7px;border-radius:2px;background:var(--orange)}
+  .seg[data-pos="1"] .thumb{transform:translateX(100%)}
+  .seg button{position:relative;z-index:1;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);
+    border-radius:10px;transition:color .15s;padding-top:5px}
+  .seg button[aria-checked="true"]{color:var(--ink)}
+
+  /* Play button */
+  .play-wrap{display:grid;place-items:center;margin-top:4px}
+  .socket{width:164px;height:164px;border-radius:50%;display:grid;place-items:center;
+    background:#e3e0d8;box-shadow:inset 6px 7px 14px rgba(120,111,92,.38),inset -6px -6px 12px rgba(255,255,255,.95)}
+  .play{width:134px;height:134px;border-radius:50%;color:#fff;display:grid;place-items:center;
+    font-size:14px;font-weight:700;letter-spacing:.26em;padding-left:.26em;
+    background:radial-gradient(circle at 34% 28%,#ff8a47,var(--orange) 52%,var(--orange-dk));
+    box-shadow:7px 11px 20px rgba(160,66,18,.42),-4px -4px 10px rgba(255,255,255,.85),inset 1px 2px 2px rgba(255,255,255,.4);
+    transition:transform .09s ease-out,box-shadow .09s ease-out}
+  .play.down,.play:active{transform:translateY(3px) scale(.965);
+    box-shadow:2px 3px 6px rgba(160,66,18,.4),inset 5px 7px 12px rgba(120,40,0,.45),inset -2px -2px 6px rgba(255,170,120,.35)}
+  .play:focus-visible{outline-offset:7px;border-radius:50%}
+
+  /* Space slider */
+  .space{position:relative;padding:0 46px}
+  .space .head{display:flex;justify-content:space-between;align-items:baseline;margin:0 -46px 4px}
+  .space .head .val{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--orange)}
+  .slider{position:relative;height:94px;touch-action:none;cursor:pointer}
+  .rail{position:absolute;left:0;right:0;top:30px;height:12px;margin-top:-6px;border-radius:6px;
+    background:#e0ddd4;box-shadow:inset 3px 3px 6px rgba(120,111,92,.4),inset -3px -3px 6px rgba(255,255,255,.95)}
+  .stop{position:absolute;top:2px;width:2px;height:12px;margin-left:-1px;background:#6f6b60;border-radius:1px}
+  .sthumb{position:absolute;top:30px;width:66px;height:48px;margin:-24px 0 0 -33px;border-radius:13px;cursor:grab;
+    background:linear-gradient(145deg,#f7f5ef,#e1ded5);
+    box-shadow:8px 11px 18px rgba(100,90,70,.42),-5px -5px 12px rgba(255,255,255,.95),inset 1px 1px 0 #fff;
+    transition:left .17s var(--spring),box-shadow .12s}
+  .sthumb.grab{cursor:grabbing;box-shadow:5px 7px 12px rgba(100,90,70,.4),-4px -4px 9px rgba(255,255,255,.95),inset 1px 1px 0 #fff}
+  .sthumb::before{content:"";position:absolute;left:12px;right:12px;top:10px;bottom:10px;
+    background:repeating-linear-gradient(90deg,rgba(110,102,86,.28) 0 1px,transparent 1px 5px)}
+  .sthumb::after{content:"";position:absolute;left:50%;top:7px;bottom:7px;width:4px;margin-left:-2px;border-radius:2px;background:var(--orange);
+    box-shadow:0 0 0 3px #efede6}
+  .slab{position:absolute;top:66px;transform:translateX(-50%);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mute);padding:6px 6px;white-space:nowrap;transition:color .15s}
+  .slab.on{color:var(--ink)}
+
+  @media (prefers-reduced-motion:reduce){
+    .knob,.sthumb,.seg .thumb,.needle{transition-duration:.01s}
+    .d-inner.rise{animation:none}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <main class="radio land" id="radio" aria-label="Play Radio">
+
+    <section class="speaker" aria-label="Play idea">
+      <div class="grille" aria-hidden="true"></div>
+      <article class="display" id="display" aria-live="polite" aria-atomic="true">
+        <div class="d-inner" id="dInner">
+          <div class="d-top"><span class="num" id="dNum">Standing by</span><span class="tag" id="dTag" hidden>Tākaro Māori</span></div>
+          <h1 class="title" id="dTitle">Tune in a play idea</h1>
+          <p class="how" id="dHow">Set your time, your space and where you are, then press play. You will get one idea to try right now.</p>
+          <div class="need" id="dNeed" hidden><b>You will need</b><span id="dNeedText"></span></div>
+          <div class="chips" id="dChips" aria-hidden="true"></div>
+        </div>
+      </article>
+      <div class="tuner" aria-hidden="true">
+        <div class="scale" id="scale"><div class="needle" id="needle"></div></div>
+        <div class="scale-lab"><span>Calm</span><span>Lively</span></div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <header class="top">
+        <div class="brand"><span class="led" id="led"></span>play radio<small>PR 1</small></div>
+        <button class="sound" id="sound" aria-pressed="false" aria-label="Sound on">
+          <svg class="on" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+          <svg class="off" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+        </button>
+      </header>
+
+      <div class="row1">
+        <div>
+          <div class="lab" style="text-align:center">Time</div>
+          <div class="dial" id="dial">
+            <div class="knob" id="knob" role="slider" tabindex="0" aria-label="How long you have"
+                 aria-valuemin="0" aria-valuemax="5" aria-valuenow="2" aria-valuetext="15 minutes"></div>
+            <div class="cap" aria-hidden="true"><span class="val" id="dVal">15</span><span class="unit">MIN</span></div>
+          </div>
+        </div>
+
+        <div class="colb">
+          <div>
+            <div class="lab">Where</div>
+            <div class="seg" id="segW" role="radiogroup" aria-label="Indoors or outdoors" data-pos="0">
+              <span class="thumb" aria-hidden="true"></span>
+              <button role="radio" aria-checked="true" tabindex="0" data-v="in">Indoors</button>
+              <button role="radio" aria-checked="false" tabindex="-1" data-v="out">Outdoors</button>
+            </div>
+          </div>
+          <div>
+            <div class="lab">Gear</div>
+            <div class="seg" id="segG" role="radiogroup" aria-label="With or without gear" data-pos="0">
+              <span class="thumb" aria-hidden="true"></span>
+              <button role="radio" aria-checked="true" tabindex="0" data-v="0">No gear</button>
+              <button role="radio" aria-checked="false" tabindex="-1" data-v="1">With gear</button>
+            </div>
+          </div>
+          <div class="play-wrap">
+            <div class="socket"><button class="play" id="play" aria-label="Play, get an idea">PLAY</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space">
+        <div class="head"><span class="lab" style="margin:0">Space</span><span class="val" id="sVal">Room</span></div>
+        <div class="slider" id="slider">
+          <div class="rail" id="rail"></div>
+          <div class="sthumb" id="sthumb" role="slider" tabindex="0" aria-label="How much space you have"
+               aria-valuemin="0" aria-valuemax="3" aria-valuenow="1" aria-valuetext="Room"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------------------------------------------------------------
+     DATA
+     t: [shortest, longest] minutes that suit the idea
+     s: smallest space needed (0 hallway, 1 room, 2 backyard, 3 park)
+     w: 'in', 'out' or 'both'
+     g: 0 no gear, 1 household items, 2 some gear needed
+     e: energy, 0 calm to 1 lively
+     m: true for Tākaro Māori ideas
+  --------------------------------------------------------------- */
+  const TIMES  = [5, 10, 15, 30, 45, 60];
+  const SPACES = ['Hallway', 'Room', 'Backyard', 'Park'];
+  const SPACE_CHIP = ['Fits a hallway', 'Needs a room', 'Needs a backyard', 'Needs a park'];
+
+  const IDEAS = [
+    {n:'Floor is Lava', d:'Pick a start and a finish across the room. The floor is lava, so you can only touch couches, chairs and cushions. Take turns choosing the route.', t:[5,30], s:1, w:'in', g:0, e:.75, k:'Furniture and cushions'},
+    {n:'Freeze Dance', d:'Play a song and dance wildly. When the music stops, freeze like a statue. Anyone who wobbles does a silly pose.', t:[5,15], s:1, w:'both', g:0, e:.85, k:'A phone or speaker for music'},
+    {n:'Animal Walk Relay', d:'Pick an animal, like a crab, bear or frog, and race across the space moving like it. Change the animal every lap.', t:[5,15], s:1, w:'both', g:0, e:.85, k:'Just yourselves'},
+    {n:'Shadow Tag', d:'Tag someone by stepping on their shadow, not on them. Best played when the sun is low and shadows are long.', t:[10,30], s:2, w:'out', g:0, e:.9, k:'A sunny day'},
+    {n:'Simon Says', d:'One person is Simon and gives the commands. Only follow the ones that start with "Simon says". Be quick, and be sneaky.', t:[5,15], s:0, w:'both', g:0, e:.4, k:'Just yourselves'},
+    {n:'What\u2019s the Time, Mr Wolf?', d:'Everyone creeps towards Mr Wolf and asks the time. Wolf answers with an hour, and everyone takes that many steps. When Wolf shouts "dinner time!", chase everyone back to the start.', t:[10,30], s:2, w:'out', g:0, e:.8, k:'Just yourselves'},
+    {n:'Bullrush', d:'One tagger stands in the middle. Everyone else runs from one side to the other without being tagged. Anyone caught joins the tagger. Last runner wins.', t:[15,60], s:3, w:'out', g:0, e:1, k:'Just yourselves'},
+    {n:'Stuck in the Mud', d:'One person is "it". Anyone they tag freezes with their legs apart. Friends free them by crawling through. Can "it" freeze everyone?', t:[10,30], s:2, w:'out', g:0, e:.9, k:'Just yourselves'},
+    {n:'Hide and Seek', d:'Count to thirty, then go looking. Agree on the boundaries first. The first person found is the next seeker.', t:[15,60], s:1, w:'both', g:0, e:.55, k:'Just yourselves'},
+    {n:'Charades', d:'Act out a movie, an animal or a job without speaking. Everyone else guesses. Use a timer if it gets competitive.', t:[10,60], s:0, w:'both', g:0, e:.3, k:'Just yourselves, or a phone timer'},
+    {n:'Story Chain', d:'One person starts a story with a single sentence. The next person adds one more. Keep going until it gets wonderfully silly.', t:[5,45], s:0, w:'both', g:0, e:.1, k:'Just yourselves'},
+    {n:'Cloud Shapes', d:'Lie back and look up. Find shapes in the clouds and describe them to each other. See who can spot the most unusual one.', t:[5,15], s:0, w:'out', g:0, e:.05, k:'A patch of grass or a doorstep'},
+    {n:'Sound Map', d:'Sit still for two minutes and listen. List every sound you can hear, near and far. Compare lists and find the quietest sound.', t:[5,15], s:0, w:'out', g:0, e:.08, k:'Just yourselves'},
+    {n:'Ground Art', d:'Gather leaves, petals and sticks and arrange them into a picture on the ground. Take a photo, then leave everything where you found it.', t:[10,45], s:0, w:'out', g:0, e:.15, k:'Whatever you find outside, and a phone for a photo'},
+    {n:'Nature Scavenger Hunt', d:'Make a list: something smooth, something spiky, something yellow, something that makes a sound. Take photos instead of picking things.', t:[15,60], s:2, w:'out', g:0, e:.5, k:'A phone for photos, or pen and paper'},
+    {n:'Cushion Obstacle Course', d:'Build a course with cushions, chairs and blankets. Time each other, then change one thing and try to beat your best.', t:[10,30], s:1, w:'in', g:1, e:.8, k:'Cushions, chairs and blankets'},
+    {n:'Balloon Keepy-Uppy', d:'Keep the balloon off the ground using any body part. Add a new rule each round, like no hands or left hand only.', t:[5,15], s:1, w:'in', g:1, e:.7, k:'A balloon'},
+    {n:'Hallway Bowling', d:'Line up plastic cups at the end of the hallway and roll a soft ball to knock them down. Keep score, or play to ten.', t:[10,30], s:0, w:'in', g:1, e:.4, k:'Plastic cups, and a soft ball or rolled-up socks'},
+    {n:'Sock Toss', d:'Roll up some socks and toss them into a basket. Take a step back each time you score.', t:[5,15], s:0, w:'in', g:1, e:.35, k:'Rolled-up socks and a basket'},
+    {n:'Box Fort', d:'Build a fort from boxes, blankets and chairs. Give it a name, a flag and a secret password.', t:[30,60], s:1, w:'in', g:1, e:.35, k:'Boxes, blankets and pegs or tape'},
+    {n:'Chalk Hopscotch', d:'Draw a hopscotch grid, or invent your own with funny moves like spins and star jumps. Toss a stone to start each turn.', t:[10,30], s:1, w:'out', g:1, e:.6, k:'Chalk and a small stone'},
+    {n:'Elastics', d:'Two people stretch a long elastic loop around their ankles while a third jumps patterns on, in and out. Raise it to the knees, then the hips, as you improve.', t:[10,45], s:1, w:'out', g:2, e:.75, k:'A long loop of elastic, about 3 to 4 metres'},
+    {n:'Frisbee Golf', d:'Pick targets such as trees, cones or bins. Count the throws it takes to hit each one. Fewest throws wins.', t:[30,60], s:3, w:'out', g:2, e:.6, k:'A frisbee and some targets'},
+    {n:'Backyard Cricket', d:'Set up a wicket and take turns batting, bowling and fielding. Agree on the house rules first, like "over the fence is out".', t:[30,60], s:2, w:'out', g:2, e:.8, k:'A bat, a ball and something for stumps'},
+    {n:'Kick to Kick', d:'Stand in two groups across the field and kick the ball back and forth. Take a step back after every clean catch.', t:[15,45], s:3, w:'out', g:2, e:.8, k:'A ball'},
+    {n:'Egg and Spoon Race', d:'Balance an egg, a potato or a ball on a spoon and race to the finish. Drop it and you go back to the start.', t:[10,30], s:2, w:'out', g:1, e:.6, k:'Spoons, and something to balance on them'},
+    {n:'Skipping Challenges', d:'Count how many skips you can do without a miss. Then try new tricks, like skipping backwards or two people in one rope.', t:[5,30], s:1, w:'out', g:2, e:.9, k:'A skipping rope'},
+    {n:'Water Balloon Toss', d:'Toss a water balloon to a partner and each take a step back after every catch. The last pair with an unbroken balloon wins.', t:[10,30], s:2, w:'out', g:1, e:.7, k:'Water balloons or wet sponges'},
+    {n:'Capture the Flag', d:'Two teams each guard a flag in their half. Sneak across, grab the other flag and get it home without being tagged.', t:[30,60], s:3, w:'out', g:1, e:1, k:'Two scarves or flags, and a way to mark the halves'},
+    {n:'Four Square', d:'Chalk a big square split into four, with one player in each. Bounce the ball into someone else\u2019s square. Miss a return and you go to the end of the line.', t:[15,45], s:1, w:'out', g:2, e:.6, k:'A bouncy ball and chalk'},
+    {n:'Wheelbarrow Race', d:'In pairs, one person walks on their hands while their partner holds their legs. Race to the line, then swap.', t:[10,30], s:2, w:'out', g:0, e:.85, k:'Just yourselves, and a soft patch of grass'},
+    {n:'Marble Run', d:'Build a track from cardboard tubes and tape on a wall or table. Test it with a marble and keep improving it.', t:[30,60], s:0, w:'in', g:1, e:.2, k:'Cardboard tubes, tape and a marble or small ball'},
+    {n:'Paper Plane Contest', d:'Fold your best paper plane and see whose flies the farthest. Then change one fold and try again.', t:[10,30], s:1, w:'in', g:1, e:.25, k:'Paper'},
+    {n:'Treasure Hunt', d:'Hide a small treasure and write three clues that lead to it. Swap roles and make the clues trickier.', t:[15,45], s:1, w:'both', g:1, e:.5, k:'Paper, a pen and a small treasure'},
+    {n:'Cup Tower Challenge', d:'Race to build the tallest tower you can using only cups. Then try again with one hand each.', t:[10,30], s:0, w:'in', g:1, e:.25, k:'Paper or plastic cups'},
+    {n:'Twenty Questions', d:'Think of something. Everyone else gets twenty yes or no questions to work out what it is.', t:[5,30], s:0, w:'both', g:0, e:.1, k:'Just yourselves'},
+    {n:'Yoga Animals', d:'Take turns striking an animal pose, like a cat, cobra or flamingo. Everyone guesses the animal, then copies the pose.', t:[5,15], s:0, w:'both', g:0, e:.15, k:'Just yourselves'},
+    {n:'Rock Paper Scissors Tournament', d:'Play a knockout tournament. Anyone who is beaten cheers for the person who beat them, until there is one champion.', t:[5,15], s:0, w:'both', g:0, e:.25, k:'Just yourselves'},
+    {n:'Make a Radio Show', d:'Record a short radio show on a phone. Include a news bulletin, a weather report, an ad break and a favourite song. Play it back and see who laughs first.', t:[30,60], s:0, w:'both', g:0, e:.3, k:'A phone to record on'},
+    {n:'Family Quiz Show', d:'Take turns being the quiz host. Each person writes five questions on any topic, from movies to footy to family trivia. Keep score and crown a champion.', t:[30,60], s:0, w:'both', g:0, e:.2, k:'Just yourselves, or pen and paper for scoring'},
+    {n:'Make a Dance', d:'Pick a song and make up a short routine together, then perform it for someone. Add a big finish.', t:[15,45], s:1, w:'in', g:0, e:.7, k:'A phone or speaker for music'},
+    {n:'Whai (String Figures)', d:'Whai are string figures. Loop string around your hands to make a shape, then pass the pattern to a partner to make the next one.', t:[10,45], s:0, w:'both', g:1, e:.1, k:'A loop of string or wool', m:true},
+    {n:'M\u016b T\u014drere', d:'A traditional two-player M\u0101ori strategy game. Draw an eight-point star, give each player four stones, and take turns sliding into the empty space. If you cannot move, you lose. Look up the full rules together.', t:[10,30], s:0, w:'in', g:1, e:.15, k:'Eight stones or buttons in two colours, and a drawn star', m:true},
+    {n:'Ki-o-rahi', d:'A traditional M\u0101ori ball game played by two teams around a central target. Look up the rules together, then give it a go with a small ball.', t:[30,60], s:3, w:'out', g:2, e:1, k:'A small ball and some cones for markers', m:true},
+    {n:'T\u012b R\u0101kau', d:'A stick game for pairs or a circle. Toss and catch short sticks in time with a steady beat, then speed up.', t:[10,30], s:0, w:'both', g:1, e:.45, k:'Short sticks or rolled-up newspaper', m:true},
+    {n:'Poi', d:'Swing a poi in circles beside your body in time with a song. Start with one hand, then try both.', t:[10,30], s:1, w:'both', g:1, e:.5, k:'A pair of poi, or a soft ball in a sock on a string', m:true}
+  ];
+
+  /* ---------------------------------------------------------------
+     STATE
+  --------------------------------------------------------------- */
+  const state = { t:2, s:1, w:'in', g:0 };
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = id => document.getElementById(id);
+  const radio = $('radio');
+
+  /* ---------------------------------------------------------------
+     SOUND (Web Audio, no files needed)
+  --------------------------------------------------------------- */
+  const Snd = (() => {
+    let ctx = null, master = null, noise = null, on = true;
+    function init(){
+      if (ctx){ if (ctx.state === 'suspended') ctx.resume(); return ctx; }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+      master = ctx.createGain(); master.gain.value = .85; master.connect(ctx.destination);
+      noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      const d = noise.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      return ctx;
+    }
+    function click({f=2500,q=2,dur=.02,vol=.25,at=0}){
+      if (!on || !init()) return;
+      const t = ctx.currentTime + at;
+      const s = ctx.createBufferSource(); s.buffer = noise;
+      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = q;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      s.connect(bp); bp.connect(g); g.connect(master);
+      s.start(t, Math.random() * .5, dur + .03);
+    }
+    function tone({f=200,to=null,dur=.08,vol=.2,type='sine',at=0}){
+      if (!on || !init()) return;
+      const t = ctx.currentTime + at;
+      const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t);
+      if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .006);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .02);
+    }
+    function sweep(dur=.62){
+      if (!on || !init()) return;
+      const t = ctx.currentTime;
+      const s = ctx.createBufferSource(); s.buffer = noise; s.loop = true;
+      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 5;
+      bp.frequency.setValueAtTime(500, t);
+      bp.frequency.exponentialRampToValueAtTime(3600, t + dur * .4);
+      bp.frequency.exponentialRampToValueAtTime(900, t + dur * .7);
+      bp.frequency.exponentialRampToValueAtTime(2200, t + dur);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.09, t + .08);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      s.connect(bp); bp.connect(g); g.connect(master); s.start(t); s.stop(t + dur + .05);
+    }
+    return {
+      unlock: init,
+      get on(){ return on; },
+      set on(v){ on = v; },
+      detent(i=0){ click({f:2300 + i * 160, q:3, dur:.018, vol:.3}); tone({f:900 + i * 90, dur:.025, vol:.05}); },
+      slide(i=0){ click({f:1500 + i * 220, q:2.5, dur:.02, vol:.3}); tone({f:300 + i * 40, to:200, dur:.05, vol:.07}); },
+      flick(){ click({f:1700, q:2, dur:.014, vol:.3}); click({f:1100, q:2, dur:.02, vol:.25, at:.028}); tone({f:170, to:95, dur:.06, vol:.14}); },
+      press(){ tone({f:150, to:55, dur:.11, vol:.5}); click({f:1500, q:1.2, dur:.03, vol:.35}); },
+      release(){ click({f:2800, q:2, dur:.014, vol:.2}); tone({f:240, to:160, dur:.05, vol:.1}); },
+      reveal(){ sweep(.62); tone({f:1318, dur:.22, vol:.07, at:.66}); tone({f:1760, dur:.3, vol:.05, at:.72}); }
+    };
+  })();
+  ['pointerdown','touchend','click','keydown'].forEach(ev =>
+    window.addEventListener(ev, () => { if (Snd.on) Snd.unlock(); }, { passive:true }));
+
+  /* ---------------------------------------------------------------
+     DIAL (time)
+  --------------------------------------------------------------- */
+  const dial = $('dial'), knob = $('knob'), dVal = $('dVal');
+  const angleFor = i => -150 + i * 60;
+  const tickEls = [], labEls = [];
+
+  (function buildDial(){
+    for (let a = -150; a <= 150; a += 12){
+      const major = (a + 150) % 60 === 0;
+      const el = document.createElement('i');
+      el.className = 'tick' + (major ? ' m' : '');
+      el.style.setProperty('--a', a + 'deg');
+      dial.insertBefore(el, knob);
+    }
+    TIMES.forEach((v, i) => {
+      const b = document.createElement('button');
+      b.className = 'dlab'; b.textContent = v; b.tabIndex = -1;
+      b.setAttribute('aria-label', v + ' minutes');
+      b.style.setProperty('--a', angleFor(i) + 'deg');
+      b.addEventListener('click', () => setTime(i, true));
+      dial.insertBefore(b, knob); labEls.push(b);
+    });
+  })();
+
+  function setTime(i, sound){
+    i = Math.max(0, Math.min(TIMES.length - 1, i));
+    const changed = i !== state.t;
+    state.t = i;
+    knob.style.transform = `rotate(${angleFor(i)}deg)`;
+    dVal.textContent = TIMES[i];
+    knob.setAttribute('aria-valuenow', i);
+    knob.setAttribute('aria-valuetext', TIMES[i] + ' minutes');
+    labEls.forEach((l, k) => l.classList.toggle('on', k === i));
+    if (changed && sound) Snd.detent(i);
+  }
+
+  let dialDrag = false;
+  function dialFromPointer(e){
+    const r = dial.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    let a = Math.atan2(dx, -dy) * 180 / Math.PI;           // 0 = up, clockwise positive
+    if (a > 150 || a < -150) a = angleFor(state.t) >= 0 ? 150 : -150;   // dead zone at the bottom
+    setTime(Math.round((a + 150) / 60), true);
+  }
+  knob.addEventListener('pointerdown', e => { dialDrag = true; knob.classList.add('grab'); knob.setPointerCapture(e.pointerId); dialFromPointer(e); e.preventDefault(); });
+  knob.addEventListener('pointermove', e => { if (dialDrag) dialFromPointer(e); });
+  const endDial = () => { dialDrag = false; knob.classList.remove('grab'); };
+  knob.addEventListener('pointerup', endDial); knob.addEventListener('pointercancel', endDial);
+  knob.addEventListener('keydown', e => {
+    const k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowUp')   { setTime(state.t + 1, true); e.preventDefault(); }
+    if (k === 'ArrowLeft'  || k === 'ArrowDown') { setTime(state.t - 1, true); e.preventDefault(); }
+    if (k === 'Home') { setTime(0, true); e.preventDefault(); }
+    if (k === 'End')  { setTime(TIMES.length - 1, true); e.preventDefault(); }
+  });
+
+  /* ---------------------------------------------------------------
+     SLIDER (space)
+  --------------------------------------------------------------- */
+  const slider = $('slider'), rail = $('rail'), sthumb = $('sthumb'), sVal = $('sVal');
+  const slabs = [];
+  (function buildSlider(){
+    SPACES.forEach((name, i) => {
+      const left = (i / (SPACES.length - 1) * 100) + '%';
+      const st = document.createElement('i'); st.className = 'stop'; st.style.left = left; rail.appendChild(st);
+      const b = document.createElement('button'); b.className = 'slab'; b.textContent = name; b.tabIndex = -1;
+      b.style.left = left; b.addEventListener('click', () => setSpace(i, true));
+      slider.appendChild(b); slabs.push(b);
+    });
+  })();
+  function setSpace(i, sound){
+    i = Math.max(0, Math.min(SPACES.length - 1, i));
+    const changed = i !== state.s;
+    state.s = i;
+    sthumb.style.left = (i / (SPACES.length - 1) * 100) + '%';
+    sVal.textContent = SPACES[i];
+    sthumb.setAttribute('aria-valuenow', i);
+    sthumb.setAttribute('aria-valuetext', SPACES[i]);
+    slabs.forEach((l, k) => l.classList.toggle('on', k === i));
+    if (changed && sound) Snd.slide(i);
+  }
+  let sDrag = false;
+  function sliderFromPointer(e){
+    const r = rail.getBoundingClientRect();
+    const f = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    setSpace(Math.round(f * (SPACES.length - 1)), true);
+  }
+  // rail left edge is relative to .slider; thumb is positioned against .slider, so align them
+  sthumb.style.position = 'absolute';
+  slider.addEventListener('pointerdown', e => {
+    if (e.target.classList.contains('slab')) return;
+    sDrag = true; sthumb.classList.add('grab'); slider.setPointerCapture(e.pointerId); sliderFromPointer(e); e.preventDefault();
+  });
+  slider.addEventListener('pointermove', e => { if (sDrag) sliderFromPointer(e); });
+  const endS = () => { sDrag = false; sthumb.classList.remove('grab'); };
+  slider.addEventListener('pointerup', endS); slider.addEventListener('pointercancel', endS);
+  sthumb.addEventListener('keydown', e => {
+    const k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowUp')   { setSpace(state.s + 1, true); e.preventDefault(); }
+    if (k === 'ArrowLeft'  || k === 'ArrowDown') { setSpace(state.s - 1, true); e.preventDefault(); }
+  });
+
+  /* ---------------------------------------------------------------
+     SOFT SWITCHES (where, gear)
+  --------------------------------------------------------------- */
+  function seg(el, key, parse){
+    const btns = [...el.querySelectorAll('button')];
+    function set(i, sound){
+      const changed = el.dataset.pos !== String(i);
+      el.dataset.pos = i;
+      btns.forEach((b, k) => { b.setAttribute('aria-checked', k === i); b.tabIndex = k === i ? 0 : -1; });
+      state[key] = parse(btns[i].dataset.v);
+      if (changed && sound) Snd.flick();
+    }
+    btns.forEach((b, i) => b.addEventListener('click', () => set(i, true)));
+    el.addEventListener('keydown', e => {
+      const cur = btns.findIndex(b => b.getAttribute('aria-checked') === 'true');
+      let n = cur;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = Math.min(1, cur + 1);
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   n = Math.max(0, cur - 1);
+      if (n !== cur){ set(n, true); btns[n].focus(); e.preventDefault(); }
+    });
+    return set;
+  }
+  seg($('segW'), 'w', v => v);
+  seg($('segG'), 'g', v => Number(v));
+
+  /* ---------------------------------------------------------------
+     PICKING AN IDEA
+  --------------------------------------------------------------- */
+  const recent = [];
+  function pick(){
+    const T = state.t, S = state.s, W = state.w, G = state.g;
+    const scored = IDEAS.map((idea, idx) => {
+      let p = 0;
+      const lo = TIMES.indexOf(idea.t[0]), hi = TIMES.indexOf(idea.t[1]);
+      if (T < lo) p += (lo - T) * 1.5;
+      if (T > hi) p += (T - hi) * 1.5;
+      if (idea.w !== 'both' && idea.w !== W) p += 5;
+      if (idea.s > S) p += 6 * (idea.s - S); else p += .2 * (S - idea.s);
+      if (G === 0 && idea.g > 0) p += 8;
+      if (G === 1 && idea.g === 0) p += .3;
+      const rank = recent.indexOf(idx);
+      const total = p + (rank >= 0 ? 2.5 : 0);
+      return { idx, base:p, total };
+    });
+    const best = Math.min(...scored.map(s => s.total));
+    const pool = scored.filter(s => s.total <= best + .35);
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  /* ---------------------------------------------------------------
+     DISPLAY + TUNER
+  --------------------------------------------------------------- */
+  const display = $('display'), dInner = $('dInner'), needle = $('needle'), led = $('led');
+  const el = { num:$('dNum'), tag:$('dTag'), title:$('dTitle'), how:$('dHow'), need:$('dNeed'), needText:$('dNeedText'), chips:$('dChips') };
+
+  (function buildScale(){
+    const sc = $('scale');
+    for (let i = 0; i <= 40; i++){
+      const t = document.createElement('i');
+      if (i % 5 === 0) t.className = 'm';
+      t.style.left = (i / 40 * 100) + '%';
+      sc.insertBefore(t, needle);
+    }
+  })();
+
+  function range(idea){
+    const a = idea.t[0], b = idea.t[1];
+    return a + ' to ' + b + ' min';
+  }
+  function render(pickRes){
+    const idea = IDEAS[pickRes.idx];
+    el.num.textContent = 'No. ' + String(pickRes.idx + 1).padStart(2, '0');
+    el.tag.hidden = !idea.m;
+    el.title.textContent = idea.n;
+    el.how.textContent = idea.d;
+    el.how.style.fontSize = '';
+    el.need.hidden = false;
+    el.needText.textContent = idea.k;
+    const chips = [range(idea), idea.w === 'in' ? 'Indoors' : idea.w === 'out' ? 'Outdoors' : 'Indoors or out',
+      idea.g === 0 ? 'No gear' : idea.g === 1 ? 'Household items' : 'Some gear', SPACE_CHIP[idea.s]];
+    el.chips.innerHTML = '';
+    chips.forEach(c => { const s = document.createElement('span'); s.textContent = c; el.chips.appendChild(s); });
+    if (pickRes.base >= 1){
+      const s = document.createElement('span'); s.className = 'close'; s.textContent = 'Closest match'; el.chips.appendChild(s);
+    }
+    el.how.removeAttribute('data-fit');
+    fitText();
+    dInner.classList.remove('rise'); void dInner.offsetWidth; if (!reduce) dInner.classList.add('rise');
+  }
+  function fitText(){
+    let size = 16;
+    el.how.style.fontSize = size + 'px';
+    el.title.style.fontSize = '';
+    while (display.scrollHeight > display.clientHeight + 1 && size > 12){
+      size -= .5; el.how.style.fontSize = size + 'px';
+    }
+  }
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+  let busy = false;
+  async function play(){
+    if (busy) return;
+    busy = true;
+    const res = pick();
+    recent.unshift(res.idx); recent.length = Math.min(recent.length, 4);
+    led.classList.add('on');
+    display.classList.add('tuning');
+    Snd.reveal();
+    const final = IDEAS[res.idx].e;
+    const path = [.06, .94, .18 + Math.random() * .5];
+    for (const x of path){ needle.style.setProperty('--x', x); await wait(210); }
+    needle.style.setProperty('--x', final);
+    await wait(60);
+    render(res);
+    display.classList.remove('tuning');
+    await wait(1100);
+    led.classList.remove('on');
+    busy = false;
+  }
+
+  /* Play button */
+  const playBtn = $('play');
+  playBtn.addEventListener('pointerdown', () => { playBtn.classList.add('down'); Snd.press(); });
+  const up = () => { if (playBtn.classList.contains('down')){ playBtn.classList.remove('down'); Snd.release(); } };
+  playBtn.addEventListener('pointerup', up); playBtn.addEventListener('pointerleave', up); playBtn.addEventListener('pointercancel', up);
+  playBtn.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') playBtn.classList.add('down'); });
+  playBtn.addEventListener('keyup',   e => { if (e.key === 'Enter' || e.key === ' ') playBtn.classList.remove('down'); });
+  playBtn.addEventListener('click', play);
+
+  /* Sound toggle */
+  const soundBtn = $('sound');
+  soundBtn.addEventListener('click', () => {
+    const wasOn = Snd.on;
+    if (wasOn) Snd.flick();
+    Snd.on = !wasOn;
+    soundBtn.setAttribute('aria-pressed', String(wasOn));
+    soundBtn.setAttribute('aria-label', wasOn ? 'Sound off' : 'Sound on');
+    if (!wasOn) Snd.flick();
+  });
+
+  /* ---------------------------------------------------------------
+     LAYOUT: keep the whole radio in view on desktop and iPad,
+     in either orientation
+  --------------------------------------------------------------- */
+  const LAND = { w:1040, h:620 }, PORT = { w:600, h:1060 };
+  function layout(){
+    const vw = window.innerWidth, vh = window.innerHeight, f = .95;
+    const sL = Math.min(vw * f / LAND.w, vh * f / LAND.h);
+    const sP = Math.min(vw * f / PORT.w, vh * f / PORT.h);
+    const land = sL >= sP;
+    const s = Math.min(land ? sL : sP, 1.7);
+    radio.classList.toggle('land', land);
+    radio.classList.toggle('port', !land);
+    radio.style.transform = `translate(-50%,-50%) scale(${s})`;
+    radio.classList.add('ready');
+    fitText();
+  }
+  window.addEventListener('resize', layout);
+  window.addEventListener('orientationchange', () => setTimeout(layout, 120));
+
+  /* Go */
+  setTime(state.t, false);
+  setSpace(state.s, false);
+  needle.style.setProperty('--x', .5);
+  layout();
+
+  /* Test hook (used for automated checks, harmless in normal use) */
+  window.__radio = { IDEAS, TIMES, pick, state, render, fitText, setTime, setSpace };
+})();
+</script>
+</body>
+</html>
